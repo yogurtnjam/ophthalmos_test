@@ -424,19 +424,30 @@ export default function ConeTest() {
               data-testid="stimulus-landolt-c"
             >
               <svg width="180" height="180" viewBox="0 0 180 180">
-                {/* Landolt C - thick ring with gap on right side */}
-                <path
-                  d="M 90 30
-                     A 60 60 0 1 1 90 150
-                     A 60 60 0 0 1 90 30
-                     M 90 50
-                     A 40 40 0 0 0 90 130
-                     A 40 40 0 1 0 117 90
-                     L 137 90
-                     A 60 60 0 0 1 90 50
-                     Z"
-                  fill={getStimulusColor(currentPhase.coneType, currentContrast)}
-                />
+                <defs>
+                  {/* Mask that creates a ring with a gap on the right */}
+                  <mask id="landolt-c-mask">
+                    {/* Start fully transparent */}
+                    <rect x="0" y="0" width="180" height="180" fill="black" />
+                    {/* Outer circle */}
+                    <circle cx="90" cy="90" r="60" fill="white" />
+                    {/* Inner circle (hole) */}
+                    <circle cx="90" cy="90" r="35" fill="black" />
+                    {/* Gap on the right */}
+                    <rect x="90" y="30" width="60" height="120" fill="black" />
+                  </mask>
+                </defs>
+      
+                {/* Fill with your stimulus colour, clipped to the Landolt C mask */}
+                <g mask="url(#landolt-c-mask)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="180"
+                    height="180"
+                    fill={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  />
+                </g>
                 
                 {/* Four short tick marks extending outward */}
                 {/* North (top) */}
