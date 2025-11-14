@@ -5,7 +5,7 @@ import { ConeTestResult, ConeMetrics } from '../../../shared/schema';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Eye } from 'lucide-react';
+import { Eye, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 type Direction = 'left' | 'up' | 'right' | 'down';
 type ConeType = 'L' | 'M' | 'S';
@@ -403,112 +403,113 @@ export default function ConeTest() {
       </div>
 
       {/* Main test area */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="relative w-full max-w-4xl aspect-[4/3]">
-          {/* Gray background panel matching ColorDx */}
-          <div 
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ backgroundColor: '#AAAAAA' }}
-            data-testid="stimulus-panel"
-          >
-            {/* Fixation cross */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="relative w-24 h-24">
-                <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gray-500 -translate-y-1/2" />
-                <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-500 -translate-x-1/2" />
-              </div>
-            </div>
-
-            {/* Landolt C Stimulus (SVG for proper gap) */}
-            {showStimulus && (
-              <div 
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                style={{
-                  transform: `rotate(${getRotation(currentDirection)}deg)`,
-                }}
-                data-testid="stimulus-landolt-c"
-              >
-                <svg width="140" height="140" viewBox="0 0 140 140">
-                  {/* Landolt C ring */}
-                  <circle
-                    cx="70"
-                    cy="70"
-                    r="45"
-                    fill="none"
-                    stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                    strokeWidth="20"
-                  />
-                  {/* Gap (opening) on the right */}
-                  <rect
-                    x="110"
-                    y="60"
-                    width="35"
-                    height="20"
-                    fill="#AAAAAA"
-                  />
-                </svg>
-              </div>
-            )}
-
-            {/* Feedback overlay */}
-            {showFeedback && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10 pointer-events-none">
-                <div className="text-4xl font-bold text-green-600">✓</div>
-              </div>
-            )}
-
-            {/* Directional clickable buttons overlaid on panel */}
-            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0">
-              {/* Row 1: empty, up button, empty */}
-              <div />
-              <button
-                onClick={() => handleDirectionClick('up')}
-                disabled={!showStimulus || isProcessing}
-                className="hover:bg-white/10 active:bg-white/20 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/30"
-                data-testid="button-up"
-                aria-label="Up"
-              />
-              <div />
-
-              {/* Row 2: left button, empty center, right button */}
-              <button
-                onClick={() => handleDirectionClick('left')}
-                disabled={!showStimulus || isProcessing}
-                className="hover:bg-white/10 active:bg-white/20 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/30"
-                data-testid="button-left"
-                aria-label="Left"
-              />
-              <div /> {/* Center - no button */}
-              <button
-                onClick={() => handleDirectionClick('right')}
-                disabled={!showStimulus || isProcessing}
-                className="hover:bg-white/10 active:bg-white/20 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/30"
-                data-testid="button-right"
-                aria-label="Right"
-              />
-
-              {/* Row 3: empty, down button, empty */}
-              <div />
-              <button
-                onClick={() => handleDirectionClick('down')}
-                disabled={!showStimulus || isProcessing}
-                className="hover:bg-white/10 active:bg-white/20 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/30"
-                data-testid="button-down"
-                aria-label="Down"
-              />
-              <div />
+      <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4">
+        {/* Gray stimulus panel */}
+        <div className="relative w-full max-w-2xl aspect-[4/3]" style={{ backgroundColor: '#AAAAAA' }} data-testid="stimulus-panel">
+          {/* Fixation cross */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="relative w-16 h-16">
+              <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-600 -translate-y-1/2" />
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600 -translate-x-1/2" />
             </div>
           </div>
+
+          {/* Landolt C Stimulus */}
+          {showStimulus && (
+            <div 
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              style={{
+                transform: `rotate(${getRotation(currentDirection)}deg)`,
+              }}
+              data-testid="stimulus-landolt-c"
+            >
+              <svg width="120" height="120" viewBox="0 0 120 120">
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="35"
+                  fill="none"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="18"
+                />
+                <rect
+                  x="90"
+                  y="51"
+                  width="30"
+                  height="18"
+                  fill="#AAAAAA"
+                />
+              </svg>
+            </div>
+          )}
+
+          {/* Feedback */}
+          {showFeedback && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+              <div className="text-4xl font-bold text-green-600">✓</div>
+            </div>
+          )}
+        </div>
+
+        {/* Directional buttons below panel */}
+        <div className="grid grid-cols-3 gap-2 w-full max-w-xs">
+          <div />
+          <Button
+            onClick={() => handleDirectionClick('up')}
+            disabled={!showStimulus || isProcessing}
+            variant="outline"
+            size="lg"
+            className="h-16"
+            data-testid="button-up"
+          >
+            <ArrowUp className="h-6 w-6" />
+          </Button>
+          <div />
+          
+          <Button
+            onClick={() => handleDirectionClick('left')}
+            disabled={!showStimulus || isProcessing}
+            variant="outline"
+            size="lg"
+            className="h-16"
+            data-testid="button-left"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <div />
+          <Button
+            onClick={() => handleDirectionClick('right')}
+            disabled={!showStimulus || isProcessing}
+            variant="outline"
+            size="lg"
+            className="h-16"
+            data-testid="button-right"
+          >
+            <ArrowRight className="h-6 w-6" />
+          </Button>
+          
+          <div />
+          <Button
+            onClick={() => handleDirectionClick('down')}
+            disabled={!showStimulus || isProcessing}
+            variant="outline"
+            size="lg"
+            className="h-16"
+            data-testid="button-down"
+          >
+            <ArrowDown className="h-6 w-6" />
+          </Button>
+          <div />
         </div>
       </div>
 
       {/* Bottom instruction */}
       <div className="p-4 text-center border-t bg-card">
         <p className="text-sm text-muted-foreground">
-          Fix your gaze on the center cross and click where you see the gap in the C ring
+          Fix your gaze on the center cross and click the button where you see the gap
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Current contrast: {currentContrast.toFixed(2)}%
+          Contrast: {currentContrast.toFixed(2)}%
         </p>
       </div>
     </div>
