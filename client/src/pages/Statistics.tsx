@@ -66,11 +66,11 @@ export default function Statistics() {
           </p>
         )}
         {coneTestResult && (
-          <div className="flex" style={{ marginTop: 8 }}>
+          <div className="flex" style={{ marginTop: 8, gap: 8 }}>
             <div className="badge">Detected: {coneTestResult.detectedType}</div>
-            <div className="badge">L: {(coneTestResult.L * 100).toFixed(0)}%</div>
-            <div className="badge">M: {(coneTestResult.M * 100).toFixed(0)}%</div>
-            <div className="badge">S: {(coneTestResult.S * 100).toFixed(0)}%</div>
+            <div className="badge">L-Score: {coneTestResult.L.score}</div>
+            <div className="badge">M-Score: {coneTestResult.M.score}</div>
+            <div className="badge">S-Score: {coneTestResult.S.score}</div>
           </div>
         )}
       </div>

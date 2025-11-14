@@ -10,11 +10,24 @@ export const questionnaireSchema = z.object({
 
 export type Questionnaire = z.infer<typeof questionnaireSchema>;
 
+// Detailed Cone Metrics Schema (per cone type)
+export const coneMetricsSchema = z.object({
+  threshold: z.number(), // Contrast threshold percentage (0-100)
+  stdError: z.number(), // Standard error percentage
+  trials: z.number(), // Number of trials completed
+  avgTime: z.number(), // Average response time in seconds
+  logCS: z.number(), // Logarithm of contrast sensitivity
+  score: z.number(), // Normalized score (0-200)
+  category: z.enum(["Normal", "Possible", "Deficient"]), // Classification
+});
+
+export type ConeMetrics = z.infer<typeof coneMetricsSchema>;
+
 // Cone Test Result Schema
 export const coneTestResultSchema = z.object({
-  L: z.number().min(0).max(1), // L-cone sensitivity (red)
-  M: z.number().min(0).max(1), // M-cone sensitivity (green)
-  S: z.number().min(0).max(1), // S-cone sensitivity (blue)
+  L: coneMetricsSchema, // L-cone (red) detailed metrics
+  M: coneMetricsSchema, // M-cone (green) detailed metrics
+  S: coneMetricsSchema, // S-cone (blue) detailed metrics
   detectedType: z.enum(["protan", "deutan", "tritan", "normal"]),
 });
 
