@@ -423,22 +423,61 @@ export default function ConeTest() {
               }}
               data-testid="stimulus-landolt-c"
             >
-              <svg width="140" height="140" viewBox="0 0 140 140">
-                {/* Landolt C using path - proper C shape with clean gap */}
+              <svg width="160" height="160" viewBox="0 0 160 160">
+                {/* Thin C ring with gap on the right */}
                 <path
-                  d="M 70 20 
-                     A 50 50 0 0 1 120 70
-                     A 50 50 0 0 1 70 120
-                     A 50 50 0 0 1 20 70
-                     A 50 50 0 0 1 70 20
-                     M 70 38
-                     A 32 32 0 0 0 38 70
-                     A 32 32 0 0 0 70 102
-                     A 32 32 0 0 0 102 70
-                     L 102 56
-                     A 32 32 0 0 1 70 38
-                     Z"
-                  fill={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  d="M 80 30 
+                     A 50 50 0 1 1 80 130
+                     A 50 50 0 0 1 80 30"
+                  fill="none"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                
+                {/* Four short tick marks extending outward */}
+                {/* North (top) */}
+                <line
+                  x1="80"
+                  y1="30"
+                  x2="80"
+                  y2="18"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                
+                {/* South (bottom) */}
+                <line
+                  x1="80"
+                  y1="130"
+                  x2="80"
+                  y2="142"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                
+                {/* East (right) - positioned away from the gap */}
+                <line
+                  x1="115"
+                  y1="50"
+                  x2="127"
+                  y2="50"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                
+                {/* West (left) */}
+                <line
+                  x1="45"
+                  y1="80"
+                  x2="33"
+                  y2="80"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="2"
+                  strokeLinecap="round"
                 />
               </svg>
             </div>
