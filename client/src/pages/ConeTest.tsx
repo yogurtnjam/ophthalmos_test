@@ -423,60 +423,63 @@ export default function ConeTest() {
               }}
               data-testid="stimulus-landolt-c"
             >
-              <svg width="160" height="160" viewBox="0 0 160 160">
-                {/* Thin C ring with gap on the right */}
+              <svg width="180" height="180" viewBox="0 0 180 180">
+                {/* Landolt C - thick ring with gap on right side */}
                 <path
-                  d="M 80 30 
-                     A 50 50 0 1 1 80 130
-                     A 50 50 0 0 1 80 30"
-                  fill="none"
-                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="3"
-                  strokeLinecap="round"
+                  d="M 90 30
+                     A 60 60 0 1 1 90 150
+                     A 60 60 0 0 1 90 30
+                     M 90 50
+                     A 40 40 0 0 0 90 130
+                     A 40 40 0 1 0 117 90
+                     L 137 90
+                     A 60 60 0 0 1 90 50
+                     Z"
+                  fill={getStimulusColor(currentPhase.coneType, currentContrast)}
                 />
                 
                 {/* Four short tick marks extending outward */}
                 {/* North (top) */}
                 <line
-                  x1="80"
+                  x1="90"
                   y1="30"
-                  x2="80"
-                  y2="18"
+                  x2="90"
+                  y2="16"
                   stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="2"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                
+                {/* East (right) */}
+                <line
+                  x1="150"
+                  y1="90"
+                  x2="164"
+                  y2="90"
+                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                  strokeWidth="3"
                   strokeLinecap="round"
                 />
                 
                 {/* South (bottom) */}
                 <line
-                  x1="80"
-                  y1="130"
-                  x2="80"
-                  y2="142"
+                  x1="90"
+                  y1="150"
+                  x2="90"
+                  y2="164"
                   stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                
-                {/* East (right) - positioned away from the gap */}
-                <line
-                  x1="115"
-                  y1="50"
-                  x2="127"
-                  y2="50"
-                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="2"
+                  strokeWidth="3"
                   strokeLinecap="round"
                 />
                 
                 {/* West (left) */}
                 <line
-                  x1="45"
-                  y1="80"
-                  x2="33"
-                  y2="80"
+                  x1="30"
+                  y1="90"
+                  x2="16"
+                  y2="90"
                   stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="2"
+                  strokeWidth="3"
                   strokeLinecap="round"
                 />
               </svg>
