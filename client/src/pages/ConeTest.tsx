@@ -5,7 +5,7 @@ import { ConeTestResult, ConeMetrics } from '../../../shared/schema';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Eye, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 type Direction = 'left' | 'up' | 'right' | 'down';
 type ConeType = 'L' | 'M' | 'S';
@@ -210,30 +210,6 @@ export default function ConeTest() {
     setLocation('/cvd-results');
   };
 
-  // Handle clicking on different regions of the C panel
-  const handlePanelClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!showStimulus || isProcessing) return;
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    // Determine which quadrant was clicked
-    const dx = x - centerX;
-    const dy = y - centerY;
-    
-    let clickedDirection: Direction;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      clickedDirection = dx > 0 ? 'right' : 'left';
-    } else {
-      clickedDirection = dy > 0 ? 'down' : 'up';
-    }
-
-    handleDirectionClick(clickedDirection);
-  };
-
   if (!isStarted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
@@ -257,19 +233,19 @@ export default function ConeTest() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>You'll see a <strong>C</strong> shape with a gap (opening) on one side</span>
+                  <span>Fix your gaze on the center cross</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>Click directly on the side of the C where the gap appears</span>
+                  <span>A faint <strong>C</strong> ring will appear with a gap on one side</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>The test adapts in real-time based on your responses</span>
+                  <span>Click the button that matches where you see the gap</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>20 trials for each color (Red, Green, Blue) = ~5 minutes total</span>
+                  <span>20 trials per color (Red, Green, Blue) = ~5 minutes total</span>
                 </li>
               </ul>
             </div>
@@ -407,118 +383,134 @@ export default function ConeTest() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-      <div className="w-full max-w-3xl mb-6">
-        <div className="flex justify-between items-center text-sm mb-2">
-          <span className="font-medium" data-testid="text-phase">
-            {currentPhase.label}
-          </span>
-          <span className="text-muted-foreground" data-testid="text-trial">
-            Trial {currentTrial + 1} of {TRIALS_PER_CONE}
-          </span>
-        </div>
-        <Progress value={progress} className="h-2" data-testid="progress-bar" />
-        <div className="text-xs text-muted-foreground mt-1 text-right">
-          {completedTrials} / {totalTrials} total
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Progress bar at top */}
+      <div className="w-full p-4 border-b bg-card">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center text-sm mb-2">
+            <span className="font-medium" data-testid="text-phase">
+              {currentPhase.label}
+            </span>
+            <span className="text-muted-foreground" data-testid="text-trial">
+              Trial {currentTrial + 1} / {TRIALS_PER_CONE}
+            </span>
+          </div>
+          <Progress value={progress} className="h-2" data-testid="progress-bar" />
+          <div className="text-xs text-muted-foreground mt-1 text-right">
+            {completedTrials} / {totalTrials} total
+          </div>
         </div>
       </div>
 
-      <Card className="w-full max-w-3xl">
-        <CardContent className="p-0">
+      {/* Main test area */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="relative w-full max-w-4xl aspect-[4/3]">
+          {/* Gray background panel matching ColorDx */}
           <div 
-            className="relative w-full aspect-square bg-[#808080] cursor-pointer select-none flex items-center justify-center"
-            onClick={handlePanelClick}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ backgroundColor: '#AAAAAA' }}
             data-testid="stimulus-panel"
           >
-            {/* Hint overlay */}
+            {/* Fixation cross */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="grid grid-cols-3 grid-rows-3 w-full h-full opacity-0 hover:opacity-10 transition-opacity">
-                <div className="col-start-2" />
-                <div className="row-start-2" />
-                <div className="row-start-2" />
-                <div className="row-start-2" />
-                <div className="col-start-2" />
+              <div className="relative w-24 h-24">
+                <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gray-500 -translate-y-1/2" />
+                <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-500 -translate-x-1/2" />
               </div>
             </div>
 
-            {/* Landolt C Stimulus */}
+            {/* Landolt C Stimulus (SVG for proper gap) */}
             {showStimulus && (
               <div 
-                className="text-[200px] font-bold leading-none transition-opacity duration-200"
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
                 style={{
-                  color: getStimulusColor(currentPhase.coneType, currentContrast),
                   transform: `rotate(${getRotation(currentDirection)}deg)`,
-                  fontFamily: 'monospace',
-                  letterSpacing: '-0.1em',
                 }}
                 data-testid="stimulus-landolt-c"
               >
-                C
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  {/* Landolt C ring */}
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r="45"
+                    fill="none"
+                    stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                    strokeWidth="20"
+                  />
+                  {/* Gap (opening) on the right */}
+                  <rect
+                    x="110"
+                    y="60"
+                    width="35"
+                    height="20"
+                    fill="#AAAAAA"
+                  />
+                </svg>
               </div>
             )}
 
-            {/* Feedback */}
+            {/* Feedback overlay */}
             {showFeedback && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                <div className="text-4xl">✓</div>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10 pointer-events-none">
+                <div className="text-4xl font-bold text-green-600">✓</div>
               </div>
             )}
 
-            {/* Instructions overlay */}
-            {!showStimulus && !showFeedback && !isProcessing && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-sm">Click where the gap appears</p>
-                </div>
-              </div>
-            )}
+            {/* Directional clickable buttons overlaid on panel */}
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0">
+              {/* Top */}
+              <div className="col-start-2" />
+              <button
+                onClick={() => handleDirectionClick('up')}
+                disabled={!showStimulus || isProcessing}
+                className="col-start-2 hover:bg-white/5 active:bg-white/10 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/20"
+                data-testid="button-up"
+                aria-label="Up"
+              />
+              <div className="col-start-2" />
+
+              {/* Middle row */}
+              <button
+                onClick={() => handleDirectionClick('left')}
+                disabled={!showStimulus || isProcessing}
+                className="hover:bg-white/5 active:bg-white/10 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/20"
+                data-testid="button-left"
+                aria-label="Left"
+              />
+              <div /> {/* Center - no button */}
+              <button
+                onClick={() => handleDirectionClick('right')}
+                disabled={!showStimulus || isProcessing}
+                className="hover:bg-white/5 active:bg-white/10 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/20"
+                data-testid="button-right"
+                aria-label="Right"
+              />
+
+              {/* Bottom */}
+              <div className="col-start-2" />
+              <button
+                onClick={() => handleDirectionClick('down')}
+                disabled={!showStimulus || isProcessing}
+                className="col-start-2 hover:bg-white/5 active:bg-white/10 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/20"
+                data-testid="button-down"
+                aria-label="Down"
+              />
+              <div className="col-start-2" />
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <div className="mt-6 grid grid-cols-3 gap-2 w-full max-w-md">
-        <div />
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="pointer-events-none opacity-50"
-        >
-          <ArrowUp className="h-4 w-4" />
-        </Button>
-        <div />
-        
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="pointer-events-none opacity-50"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex items-center justify-center">
-          <span className="text-xs text-muted-foreground">Click the C</span>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="pointer-events-none opacity-50"
-        >
-          <ArrowRight className="h-4 w-4" />
-        </Button>
-        
-        <div />
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="pointer-events-none opacity-50"
-        >
-          <ArrowDown className="h-4 w-4" />
-        </Button>
-        <div />
       </div>
 
-      <p className="mt-4 text-xs text-muted-foreground text-center max-w-md">
-        Contrast: {currentContrast.toFixed(2)}% • Click directly on the side where you see the gap
-      </p>
+      {/* Bottom instruction */}
+      <div className="p-4 text-center border-t bg-card">
+        <p className="text-sm text-muted-foreground">
+          Fix your gaze on the center cross and click where you see the gap in the C ring
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Current contrast: {currentContrast.toFixed(2)}%
+        </p>
+      </div>
     </div>
   );
 }
