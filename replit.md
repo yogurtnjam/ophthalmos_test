@@ -91,9 +91,33 @@ Preferred communication style: Simple, everyday language.
 - Custom Vite plugins for Replit environment (cartographer, dev banner, runtime error overlay)
 - Configured for seamless deployment on Replit platform
 
-**Color Science**:
+**Color Science & Psychophysics**:
 - Custom implementations of colorimetric transformations
 - Heuristic-based cone adaptation algorithms
 - WCAG contrast ratio calculations
+- Staircase threshold calculator for adaptive psychophysical testing
+  - Reversal detection algorithm
+  - Threshold estimation from fixed-level test data
+  - Psychometric function analysis
 
 **Note**: The application uses an in-memory storage implementation for rapid prototyping. Database configuration (Drizzle + Postgres) is present for future migration to persistent storage when needed.
+
+## Recent Updates (November 15, 2025)
+
+**Cone Test Improvements:**
+- Simplified from adaptive staircase to fixed contrast levels: [1%, 5%, 10%, 25%, 50%, 100%]
+- Reduced total trials from 60 to 18 (6 per color × 3 colors)
+- Test completion time: ~5 minutes
+- Smaller Landolt C design (radius 30, stroke 12)
+- All 4 tick marks now visible with gap alignment at each rotation
+- Removed fixation cross from test panel
+
+**Threshold Calculator Implementation:**
+- Added `client/src/lib/staircaseThreshold.ts` with TypeScript implementation
+- Functions:
+  - `thresholdFromReversals()` - Analyzes adaptive staircase sequences
+  - `thresholdFromFixedLevels()` - Calculates thresholds from fixed-level test data
+  - Reversal point detection with direction change tracking
+- New demo page at `/staircase-demo` for testing and visualization
+- Integrated into ConeTest results calculation for more accurate threshold estimation
+- Replaces simple averaging with psychometric analysis (geometric mean between highest incorrect and lowest correct levels)

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Eye, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { thresholdFromFixedLevels } from '@/lib/staircaseThreshold';
 
 type Direction = 'left' | 'up' | 'right' | 'down';
 type ConeType = 'L' | 'M' | 'S';
@@ -143,15 +144,19 @@ export default function ConeTest() {
 
   const calculateConeMetrics = (coneTrials: Trial[]): ConeMetrics => {
     const n = coneTrials.length;
-    const threshold = coneTrials.reduce((sum, t) => sum + t.contrastPercent, 0) / n;
     
-    const sumSquaredDiffs = coneTrials.reduce((sum, t) => {
-      const diff = t.contrastPercent - threshold;
-      return sum + (diff * diff);
-    }, 0);
-    const sampleVariance = n > 1 ? sumSquaredDiffs / (n - 1) : 0;
-    const stdDev = Math.sqrt(sampleVariance);
-    const stdError = n > 1 ? stdDev / Math.sqrt(n) : 0;
+    // Extract contrast levels and responses for threshold calculation
+    const contrastLevels = coneTrials.map(t => t.contrastPercent);
+    const responses = coneTrials.map(t => t.correct);
+    
+    // Calculate threshold using staircase algorithm adapted for fixed levels
+    const threshold = thresholdFromFixedLevels(contrastLevels, responses);
+    
+    // Calculate standard error based on response variability
+    const correctCount = responses.filter(r => r).length;
+    const proportion = correctCount / n;
+    // Standard error for proportion: sqrt(p(1-p)/n)
+    const stdError = Math.sqrt(proportion * (1 - proportion) / n) * 100;
     
     const avgTime = coneTrials.reduce((sum, t) => sum + t.responseTimeMs, 0) / coneTrials.length / 1000;
     const thresholdDecimal = threshold / 100;
