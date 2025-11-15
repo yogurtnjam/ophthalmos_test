@@ -5,14 +5,14 @@ import { applyCustomAdaptiveFilter, applyOSPresetFilter } from '../utils/filters
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from '../utils/color';
 import { TaskPerformance } from '../../../shared/schema';
 
-type GameState = 'tile-1' | 'tile-2' | 'color-match' | 'card-match' | 'complete';
+type GameState = 'tile-game' | 'color-match' | 'card-match' | 'complete';
 
 export default function TaskGames() {
   const { state, setState, addTaskPerformance } = useApp();
   const [, setLocation] = useLocation();
   const { rgbAdjustment, selectedOSPreset, currentFilterMode } = state;
 
-  const [currentGame, setCurrentGame] = useState<GameState>('tile-1');
+  const [currentGame, setCurrentGame] = useState<GameState>('tile-game');
   const [isGameActive, setIsGameActive] = useState(false);
   const [startTime, setStartTime] = useState(0);
   const [clicks, setClicks] = useState(0);
@@ -50,9 +50,7 @@ export default function TaskGames() {
     setIsGameActive(false);
 
     // Move to next game
-    if (currentGame === 'tile-1') {
-      setCurrentGame('tile-2');
-    } else if (currentGame === 'tile-2') {
+    if (currentGame === 'tile-game') {
       setCurrentGame('color-match');
     } else if (currentGame === 'color-match') {
       setCurrentGame('card-match');
@@ -80,7 +78,7 @@ export default function TaskGames() {
       }));
       // Reset game state for OS preset phase
       setTimeout(() => {
-        setCurrentGame('tile-1');
+        setCurrentGame('tile-game');
         setIsGameActive(false);
         setIsTransitioning(false);
         setIsProcessing(false);
@@ -144,20 +142,8 @@ export default function TaskGames() {
         </div>
       )}
 
-      {currentGame === 'tile-1' && (
-        <DifferentTileGame
-          round={1}
-          isActive={isGameActive}
-          onStart={handleGameStart}
-          onComplete={handleGameComplete}
-          onClick={incrementClick}
-          applyFilter={applyFilter}
-        />
-      )}
-
-      {currentGame === 'tile-2' && (
-        <DifferentTileGame
-          round={2}
+      {currentGame === 'tile-game' && (
+        <TileGame
           isActive={isGameActive}
           onStart={handleGameStart}
           onComplete={handleGameComplete}
@@ -190,27 +176,32 @@ export default function TaskGames() {
   );
 }
 
-// Game 1 & 2: Different Tile Picker
-function DifferentTileGame({
-  round,
+// Game 1: Tile Game (3+ rounds)
+function TileGame({
   isActive,
   onStart,
   onComplete,
   onClick,
   applyFilter,
 }: {
-  round: number;
   isActive: boolean;
   onStart: () => void;
   onComplete: (correct: boolean) => void;
   onClick: () => void;
   applyFilter: (color: string) => string;
 }) {
-  const baseColor = round === 1 ? '#3a7d44' : '#1e88e5';
+  const MIN_ROUNDS = 3;
   const tiles = 25;
-  const [oddIndex] = useState(Math.floor(Math.random() * tiles));
+  const [round, setRound] = useState(0);
+  const [oddIndex, setOddIndex] = useState(Math.floor(Math.random() * tiles));
+  const [baseColor, setBaseColor] = useState('#3a7d44');
 
-  // Create slightly different color
+  const generateNewRound = () => {
+    const colors = ['#3a7d44', '#1e88e5', '#e63946', '#f4a261', '#2a9d8f', '#8e44ad'];
+    setBaseColor(colors[Math.floor(Math.random() * colors.length)]);
+    setOddIndex(Math.floor(Math.random() * tiles));
+  };
+
   const { r, g, b } = hexToRgb(baseColor);
   const { h, s, l } = rgbToHsl(r, g, b);
   const diffColor = hslToRgb((h + 15) % 360, s, l);
@@ -220,41 +211,54 @@ function DifferentTileGame({
     if (!isActive) return;
     onClick();
     const correct = index === oddIndex;
-    onComplete(correct);
+    
+    if (round + 1 >= MIN_ROUNDS) {
+      // Complete the game after minimum rounds
+      onComplete(correct);
+    } else {
+      // Generate new round
+      setRound(r => r + 1);
+      generateNewRound();
+    }
   };
 
   return (
     <div>
-      <h3>Game {round}: Find the Different Tile</h3>
-      <p className="small">Click on the tile that has a slightly different color.</p>
+      <h3>Game 1: Find the Different Tile</h3>
+      <p className="small">Click on the tile that has a slightly different color. ({MIN_ROUNDS} rounds)</p>
       <div className="space"></div>
 
       {!isActive ? (
-        <button className="btn" onClick={onStart} data-testid={`button-start-tile-${round}`}>
-          Start Game {round}
+        <button className="btn" onClick={onStart} data-testid="button-start-tile-game">
+          Start Game 1
         </button>
       ) : (
-        <div className="grid5">
-          {Array.from({ length: tiles }).map((_, i) => (
-            <button
-              key={i}
-              className="tile"
-              style={{
-                background: applyFilter(i === oddIndex ? oddColor : baseColor),
-                cursor: 'pointer',
-                border: 'none',
-              }}
-              onClick={() => handleTileClick(i)}
-              data-testid={`tile-${i}`}
-            />
-          ))}
-        </div>
+        <>
+          <div style={{ marginBottom: 12, textAlign: 'center' }}>
+            <span className="small">Round {round + 1} of {MIN_ROUNDS}</span>
+          </div>
+          <div className="grid5">
+            {Array.from({ length: tiles }).map((_, i) => (
+              <button
+                key={i}
+                className="tile"
+                style={{
+                  background: applyFilter(i === oddIndex ? oddColor : baseColor),
+                  cursor: 'pointer',
+                  border: 'none',
+                }}
+                onClick={() => handleTileClick(i)}
+                data-testid={`tile-${i}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-// Game 3: Color Scroll Matcher
+// Game 2: Color Scroll Matcher
 function ColorScrollMatcher({
   isActive,
   onStart,
@@ -306,7 +310,7 @@ function ColorScrollMatcher({
 
   return (
     <div>
-      <h3>Game 3: Color Match Scroller</h3>
+      <h3>Game 2: Color Match Scroller</h3>
       <p className="small">Find and click the color that matches the target below.</p>
       <div className="space"></div>
 
@@ -324,7 +328,7 @@ function ColorScrollMatcher({
             data-testid="target-color"
           />
           <button className="btn" onClick={onStart} data-testid="button-start-color-match">
-            Start Game 3
+            Start Game 2
           </button>
         </>
       ) : (
@@ -373,7 +377,7 @@ function ColorScrollMatcher({
   );
 }
 
-// Game 4: 6-Card Matching
+// Game 3: Card Matching
 function CardMatchingGame({
   isActive,
   onStart,
@@ -394,67 +398,92 @@ function CardMatchingGame({
     return pairs.sort(() => Math.random() - 0.5);
   });
 
-  const [flipped, setFlipped] = useState<number[]>(() => cards.map((_, i) => i));
+  const [flipped, setFlipped] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
+  const [isChecking, setIsChecking] = useState(false);
 
   const handleCardClick = (index: number) => {
-    if (!isActive || flipped.includes(index) || matched.includes(index)) return;
+    // Don't allow clicks if: not active, card already matched
+    if (!isActive || matched.includes(index)) return;
+    
+    // Count the click even if card is already flipped or we're checking
     onClick();
+    
+    // Don't process the click if already checking or card already flipped
+    if (isChecking || flipped.includes(index)) return;
 
     const newFlipped = [...flipped, index];
     setFlipped(newFlipped);
 
+    // Check if we have two cards flipped
     if (newFlipped.length === 2) {
+      setIsChecking(true);
       const [first, second] = newFlipped;
+      
       if (cards[first] === cards[second]) {
-        setMatched([...matched, first, second]);
-        setFlipped([]);
-
-        // Check if all matched
-        if (matched.length + 2 === cards.length) {
-          setTimeout(() => onComplete(true), 500);
-        }
+        // Match found - add to matched and clear flipped
+        setTimeout(() => {
+          setMatched(prevMatched => {
+            const newMatched = [...prevMatched, first, second];
+            // Check if all matched
+            if (newMatched.length === cards.length) {
+              setTimeout(() => onComplete(true), 500);
+            }
+            return newMatched;
+          });
+          setFlipped([]);
+          setIsChecking(false);
+        }, 600);
       } else {
-        setTimeout(() => setFlipped([]), 800);
+        // No match - reset flipped cards
+        setTimeout(() => {
+          setFlipped([]);
+          setIsChecking(false);
+        }, 1000);
       }
     }
   };
 
   return (
     <div>
-      <h3>Game 4: Card Matching</h3>
-      <p className="small">Match pairs of colored cards.</p>
+      <h3>Game 3: Card Matching</h3>
+      <p className="small">Click two cards to find matching pairs. Matched cards will disappear.</p>
       <div className="space"></div>
 
       {!isActive ? (
         <button className="btn" onClick={onStart} data-testid="button-start-card-match">
-          Start Game 4
+          Start Game 3
         </button>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, maxWidth: 400, margin: '0 auto' }}>
-          {cards.map((color, i) => (
-            <div
-              key={i}
-              onClick={() => handleCardClick(i)}
-              style={{
-                aspectRatio: '1',
-                borderRadius: 12,
-                cursor: 'pointer',
-                background:
-                  flipped.includes(i) || matched.includes(i)
+          {cards.map((color, i) => {
+            const isMatched = matched.includes(i);
+            const isFlipped = flipped.includes(i);
+            
+            return (
+              <div
+                key={i}
+                onClick={() => handleCardClick(i)}
+                style={{
+                  aspectRatio: '1',
+                  borderRadius: 12,
+                  cursor: isMatched ? 'default' : 'pointer',
+                  background: isFlipped
                     ? applyFilter(color)
                     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: '2px solid #ddd',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 24,
-                transition: 'all 0.3s',
-              }}
-              data-testid={`card-${i}`}>
-              {matched.includes(i) && '✓'}
-            </div>
-          ))}
+                  border: '2px solid #ddd',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  transition: 'all 0.3s',
+                  opacity: isMatched ? 0 : 1,
+                  visibility: isMatched ? 'hidden' : 'visible',
+                }}
+                data-testid={`card-${i}`}
+              />
+            );
+          })}
         </div>
       )}
     </div>
