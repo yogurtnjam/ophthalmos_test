@@ -36,8 +36,8 @@ const MIN_CONTRAST = 0.01;
 const MAX_CONTRAST = 100;
 const CORRECT_STEP_DOWN = 0.7;
 const INCORRECT_STEP_UP = 1.5;
-const C_RADIUS = 40;          // size of the C
-const C_STROKE = 14;          // thickness of the ring
+const C_RADIUS = 30;          // size of the C (smaller)
+const C_STROKE = 12;          // thickness of the ring
 const GAP_FRACTION = 0.18;    // fraction of the circle to leave open (≈ 65°)
 
 const circumference = 2 * Math.PI * C_RADIUS;
@@ -418,14 +418,10 @@ export default function ConeTest() {
           {showStimulus && (
             <div
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              style={{
-                // rotates gap + ticks together
-                transform: `rotate(${getRotation(currentDirection)}deg)`,
-              }}
               data-testid="stimulus-landolt-c"
             >
               <svg width="180" height="180" viewBox="0 0 180 180">
-                {/* Landolt C – rotated to match currentDirection */}
+                {/* Landolt C rotated to align gap with tick marks */}
                 <g transform={`rotate(${getRotation(currentDirection)} 90 90)`}>
                   <circle
                     cx={90}
@@ -436,35 +432,33 @@ export default function ConeTest() {
                     strokeWidth={C_STROKE}
                     strokeLinecap="butt"
                     strokeDasharray={`${visibleLength} ${gapLength}`}
-                    // optional: shift where the gap starts; tweak if needed
-                    // strokeDashoffset={gapLength / 2}
+                    strokeDashoffset={-gapLength / 2}
                   />
+                  
+                  {/* Tick mark at gap position */}
+                  {(() => {
+                    const rOuter = C_RADIUS + C_STROKE / 2;
+                    const offset = 8;
+                    const tickLen = 12;
+                    const start = rOuter + offset;
+                    const end = start + tickLen;
+                    const cx = 90;
+                    const cy = 90;
+                    const tickColour = "#2f343b";
+
+                    return (
+                      <line 
+                        x1={cx + start} 
+                        y1={cy} 
+                        x2={cx + end} 
+                        y2={cy}
+                        stroke={tickColour} 
+                        strokeWidth={2} 
+                        strokeLinecap="square" 
+                      />
+                    );
+                  })()}
                 </g>
-
-                {/* Tick marks OUTSIDE the C */}
-                {(() => {
-                  const rOuter = C_RADIUS + C_STROKE / 2;
-                  const offset = 8;
-                  const tickLen = 12;
-                  const start = rOuter + offset;
-                  const end = start + tickLen;
-                  const cx = 90;
-                  const cy = 90;
-                  const tickColour = "#2f343b";
-
-                  return (
-                    <>
-                      <line x1={cx} y1={cy - end} x2={cx} y2={cy - start}
-                            stroke={tickColour} strokeWidth={2} strokeLinecap="square" />
-                      <line x1={cx} y1={cy + start} x2={cx} y2={cy + end}
-                            stroke={tickColour} strokeWidth={2} strokeLinecap="square" />
-                      <line x1={cx - end} y1={cy} x2={cx - start} y2={cy}
-                            stroke={tickColour} strokeWidth={2} strokeLinecap="square" />
-                      <line x1={cx + start} y1={cy} x2={cx + end} y2={cy}
-                            stroke={tickColour} strokeWidth={2} strokeLinecap="square" />
-                    </>
-                  );
-                })()}
               </svg>
             </div>
           )}
