@@ -416,7 +416,7 @@ export default function ConeTest() {
 
           {/* Landolt C Stimulus */}
           {showStimulus && (
-            <div 
+            <div
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
               style={{
                 transform: `rotate(${getRotation(currentDirection)}deg)`,
@@ -424,74 +424,24 @@ export default function ConeTest() {
               data-testid="stimulus-landolt-c"
             >
               <svg width="180" height="180" viewBox="0 0 180 180">
-                <defs>
-                  {/* Mask that creates a ring with a gap on the right */}
-                  <mask id="landolt-c-mask">
-                    {/* Start fully transparent */}
-                    <rect x="0" y="0" width="180" height="180" fill="black" />
-                    {/* Outer circle */}
-                    <circle cx="90" cy="90" r="60" fill="white" />
-                    {/* Inner circle (hole) */}
-                    <circle cx="90" cy="90" r="35" fill="black" />
-                    {/* Gap on the right */}
-                    <rect x="90" y="30" width="60" height="120" fill="black" />
-                  </mask>
-                </defs>
-      
-                {/* Fill with your stimulus colour, clipped to the Landolt C mask */}
-                <g mask="url(#landolt-c-mask)">
-                  <rect
-                    x="0"
-                    y="0"
-                    width="180"
-                    height="180"
-                    fill={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  />
-                </g>
-                
-                {/* Four short tick marks extending outward */}
-                {/* North (top) */}
-                <line
-                  x1="90"
-                  y1="30"
-                  x2="90"
-                  y2="16"
+                {/*
+                  Landolt C: a circle with a thick stroke and a gap on the right.
+                  - centre: (90, 90)
+                  - radius: 50
+                  - strokeWidth: 20 → ring thickness
+                  - strokeDasharray: [dashLength, gapLength]
+                    circumference ≈ 2πr ≈ 314
+                    we use ~270 visible, ~44 gap → tweak to taste
+                */}
+                <circle
+                  cx={90}
+                  cy={90}
+                  r={50}
+                  fill="none"
                   stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="3"
+                  strokeWidth={20}
                   strokeLinecap="round"
-                />
-                
-                {/* East (right) */}
-                <line
-                  x1="150"
-                  y1="90"
-                  x2="164"
-                  y2="90"
-                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                
-                {/* South (bottom) */}
-                <line
-                  x1="90"
-                  y1="150"
-                  x2="90"
-                  y2="164"
-                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                
-                {/* West (left) */}
-                <line
-                  x1="30"
-                  y1="90"
-                  x2="16"
-                  y2="90"
-                  stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
-                  strokeWidth="3"
-                  strokeLinecap="round"
+                  strokeDasharray="270 44"
                 />
               </svg>
             </div>
