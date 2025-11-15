@@ -30,12 +30,8 @@ const TEST_PHASES: TestPhase[] = [
   { coneType: 'S', label: 'Blue (S-cone)', color: '#4dabf7' },
 ];
 
-const TRIALS_PER_CONE = 20;
-const INITIAL_CONTRAST = 50;
-const MIN_CONTRAST = 0.01;
-const MAX_CONTRAST = 100;
-const CORRECT_STEP_DOWN = 0.7;
-const INCORRECT_STEP_UP = 1.5;
+const TRIALS_PER_CONE = 6;
+const CONTRAST_LEVELS = [1, 5, 10, 25, 50, 100]; // Fixed contrast levels
 const C_RADIUS = 30;          // size of the C (smaller)
 const C_STROKE = 12;          // thickness of the ring
 const GAP_FRACTION = 0.18;    // fraction of the circle to leave open (≈ 65°)
@@ -51,7 +47,6 @@ export default function ConeTest() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [currentTrial, setCurrentTrial] = useState(0);
   const [currentDirection, setCurrentDirection] = useState<Direction>('right');
-  const [currentContrast, setCurrentContrast] = useState(INITIAL_CONTRAST);
   const [trials, setTrials] = useState<Trial[]>([]);
   const [trialStartTime, setTrialStartTime] = useState<number>(0);
   const [isStarted, setIsStarted] = useState(false);
@@ -109,6 +104,7 @@ export default function ConeTest() {
     
     const responseTime = Date.now() - trialStartTime;
     const isCorrect = selectedDirection === currentDirection;
+    const currentContrast = CONTRAST_LEVELS[currentTrial];
     
     const trial: Trial = {
       coneType: currentPhase.coneType,
@@ -123,20 +119,11 @@ export default function ConeTest() {
 
     setTimeout(() => {
       setShowFeedback(false);
-      
-      let newContrast = currentContrast;
-      if (isCorrect) {
-        newContrast = Math.max(MIN_CONTRAST, currentContrast * CORRECT_STEP_DOWN);
-      } else {
-        newContrast = Math.min(MAX_CONTRAST, currentContrast * INCORRECT_STEP_UP);
-      }
-      setCurrentContrast(newContrast);
 
       if (currentTrial + 1 >= TRIALS_PER_CONE) {
         if (currentPhaseIndex + 1 < TEST_PHASES.length) {
           setCurrentPhaseIndex(prev => prev + 1);
           setCurrentTrial(0);
-          setCurrentContrast(INITIAL_CONTRAST);
           setTimeout(() => {
             setIsProcessing(false);
             startNewTrial();
@@ -155,11 +142,10 @@ export default function ConeTest() {
   };
 
   const calculateConeMetrics = (coneTrials: Trial[]): ConeMetrics => {
-    const lastTrials = coneTrials.slice(-10);
-    const n = lastTrials.length;
-    const threshold = lastTrials.reduce((sum, t) => sum + t.contrastPercent, 0) / n;
+    const n = coneTrials.length;
+    const threshold = coneTrials.reduce((sum, t) => sum + t.contrastPercent, 0) / n;
     
-    const sumSquaredDiffs = lastTrials.reduce((sum, t) => {
+    const sumSquaredDiffs = coneTrials.reduce((sum, t) => {
       const diff = t.contrastPercent - threshold;
       return sum + (diff * diff);
     }, 0);
@@ -229,7 +215,7 @@ export default function ConeTest() {
               <div>
                 <CardTitle data-testid="text-title">Cone Contrast Sensitivity Test</CardTitle>
                 <CardDescription data-testid="text-description">
-                  Professional-grade adaptive threshold detection
+                  Quick contrast detection test for Red, Green, and Blue/Violet
                 </CardDescription>
               </div>
             </div>
@@ -240,11 +226,7 @@ export default function ConeTest() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>Fix your gaze on the center cross</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-primary">•</span>
-                  <span>A faint <strong>C</strong> ring will appear with a gap on one side</span>
+                  <span>A <strong>C</strong> ring will appear with a gap on one side</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
@@ -252,7 +234,11 @@ export default function ConeTest() {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary">•</span>
-                  <span>20 trials per color (Red, Green, Blue) = ~5 minutes total</span>
+                  <span>6 trials per color at different contrast levels (1%, 5%, 10%, 25%, 50%, 100%)</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary">•</span>
+                  <span>Total time: ~5 minutes (18 trials)</span>
                 </li>
               </ul>
             </div>
@@ -428,7 +414,7 @@ export default function ConeTest() {
                     cy={90}
                     r={C_RADIUS}
                     fill="none"
-                    stroke={getStimulusColor(currentPhase.coneType, currentContrast)}
+                    stroke={getStimulusColor(currentPhase.coneType, CONTRAST_LEVELS[currentTrial])}
                     strokeWidth={C_STROKE}
                     strokeLinecap="butt"
                     strokeDasharray={`${visibleLength} ${gapLength}`}
@@ -527,10 +513,10 @@ export default function ConeTest() {
       {/* Bottom instruction */}
       <div className="p-4 text-center border-t bg-card">
         <p className="text-sm text-muted-foreground">
-          Fix your gaze on the center cross and click the button where you see the gap
+          Click the button where you see the gap in the C
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Contrast: {currentContrast.toFixed(2)}%
+          Contrast: {CONTRAST_LEVELS[currentTrial]}%
         </p>
       </div>
     </div>
