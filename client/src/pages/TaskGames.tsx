@@ -18,6 +18,18 @@ export default function TaskGames() {
   const [clicks, setClicks] = useState(0);
   const [swipes, setSwipes] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [, forceUpdate] = useState(0);
+
+  // Update timer display every 100ms while game is active
+  useEffect(() => {
+    if (!isGameActive) return;
+    
+    const interval = setInterval(() => {
+      forceUpdate(n => n + 1);
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, [isGameActive]);
 
   // Apply filter to color based on current mode
   const applyFilter = (color: string): string => {
@@ -30,12 +42,10 @@ export default function TaskGames() {
 
   const handleGameStart = () => {
     setIsGameActive(true);
-    // Only set start time if this is the first game (startTime is 0)
-    if (startTime === 0) {
-      setStartTime(Date.now());
-      setClicks(0);
-      setSwipes(0);
-    }
+    // Reset timer for each game
+    setStartTime(Date.now());
+    setClicks(0);
+    setSwipes(0);
   };
 
   const handleGameComplete = (correct: boolean) => {
