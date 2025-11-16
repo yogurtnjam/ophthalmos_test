@@ -30,9 +30,12 @@ export default function TaskGames() {
 
   const handleGameStart = () => {
     setIsGameActive(true);
-    setStartTime(Date.now());
-    setClicks(0);
-    setSwipes(0);
+    // Only set start time if this is the first game (startTime is 0)
+    if (startTime === 0) {
+      setStartTime(Date.now());
+      setClicks(0);
+      setSwipes(0);
+    }
   };
 
   const handleGameComplete = (correct: boolean) => {
@@ -358,7 +361,14 @@ function ColorScrollMatcher({
             {colors.map((color, i) => (
               <div
                 key={i}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleColorClick(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleColorClick(i);
+                  }
+                }}
                 style={{
                   minWidth: 80,
                   height: 80,
@@ -398,30 +408,29 @@ function CardMatchingGame({
     return pairs.sort(() => Math.random() - 0.5);
   });
 
-  const [flipped, setFlipped] = useState<number[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [isChecking, setIsChecking] = useState(false);
 
   const handleCardClick = (index: number) => {
-    // Don't allow clicks if: not active, card already matched
-    if (!isActive || matched.includes(index)) return;
+    // Don't allow clicks if: not active, card already matched, or currently checking
+    if (!isActive || matched.includes(index) || isChecking) return;
     
-    // Count the click even if card is already flipped or we're checking
+    // Don't select the same card twice
+    if (selected.includes(index)) return;
+    
     onClick();
-    
-    // Don't process the click if already checking or card already flipped
-    if (isChecking || flipped.includes(index)) return;
 
-    const newFlipped = [...flipped, index];
-    setFlipped(newFlipped);
+    const newSelected = [...selected, index];
+    setSelected(newSelected);
 
-    // Check if we have two cards flipped
-    if (newFlipped.length === 2) {
+    // Check if we have two cards selected
+    if (newSelected.length === 2) {
       setIsChecking(true);
-      const [first, second] = newFlipped;
+      const [first, second] = newSelected;
       
       if (cards[first] === cards[second]) {
-        // Match found - add to matched and clear flipped
+        // Match found - add to matched and clear selected
         setTimeout(() => {
           setMatched(prevMatched => {
             const newMatched = [...prevMatched, first, second];
@@ -431,13 +440,13 @@ function CardMatchingGame({
             }
             return newMatched;
           });
-          setFlipped([]);
+          setSelected([]);
           setIsChecking(false);
         }, 600);
       } else {
-        // No match - reset flipped cards
+        // No match - reset selected cards
         setTimeout(() => {
-          setFlipped([]);
+          setSelected([]);
           setIsChecking(false);
         }, 1000);
       }
@@ -447,7 +456,7 @@ function CardMatchingGame({
   return (
     <div>
       <h3>Game 3: Card Matching</h3>
-      <p className="small">Click two cards to find matching pairs. Matched cards will disappear.</p>
+      <p className="small">Click two cards to find matching color pairs. Matched cards will disappear.</p>
       <div className="space"></div>
 
       {!isActive ? (
@@ -458,7 +467,7 @@ function CardMatchingGame({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, maxWidth: 400, margin: '0 auto' }}>
           {cards.map((color, i) => {
             const isMatched = matched.includes(i);
-            const isFlipped = flipped.includes(i);
+            const isSelected = selected.includes(i);
             
             return (
               <div
@@ -468,10 +477,8 @@ function CardMatchingGame({
                   aspectRatio: '1',
                   borderRadius: 12,
                   cursor: isMatched ? 'default' : 'pointer',
-                  background: isFlipped
-                    ? applyFilter(color)
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: '2px solid #ddd',
+                  background: applyFilter(color),
+                  border: isSelected ? '4px solid #000' : '2px solid #ddd',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -479,6 +486,7 @@ function CardMatchingGame({
                   transition: 'all 0.3s',
                   opacity: isMatched ? 0 : 1,
                   visibility: isMatched ? 'hidden' : 'visible',
+                  transform: isSelected ? 'scale(0.95)' : 'scale(1)',
                 }}
                 data-testid={`card-${i}`}
               />
