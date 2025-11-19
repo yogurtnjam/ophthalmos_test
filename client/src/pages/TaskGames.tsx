@@ -241,7 +241,12 @@ function TileGame({
 
   const { r, g, b } = hexToRgb(baseColor);
   const { h, s, l } = rgbToHsl(r, g, b);
-  const diffColor = hslToRgb((h + 15) % 360, s, l);
+  // Use a much larger hue shift (60-90°) and boost saturation/lightness for OS preset visibility
+  const hueShift = 75; // Large enough to be distinct even after colorblind filters
+  const newH = (h + hueShift) % 360;
+  const newS = Math.min(100, s * 1.15); // Boost saturation by 15%
+  const newL = Math.min(100, Math.max(0, l + (l < 50 ? 10 : -10))); // Adjust lightness
+  const diffColor = hslToRgb(newH, newS, newL);
   const oddColor = rgbToHex(diffColor.r, diffColor.g, diffColor.b);
 
   const handleTileClick = (index: number) => {
