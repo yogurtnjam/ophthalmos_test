@@ -21,9 +21,9 @@ function Router() {
         <nav className="nav">
           <Link to="/" data-testid="link-questionnaire">Questionnaire</Link>
           <Link to="/cone-test" data-testid="link-cone-test">Cone Test</Link>
-          <Link to="/cvd-results" data-testid="link-cvd-results">Results</Link>
-          <Link to="/tasks" data-testid="link-tasks">Tasks</Link>
-          <Link to="/statistics" data-testid="link-statistics">Statistics</Link>
+          <Link to="/tasks" data-testid="link-custom-preset">Custom Preset Tasks</Link>
+          <Link to="/tasks" data-testid="link-os-preset">OS Preset Tasks</Link>
+          <Link to="/statistics" data-testid="link-results">Results</Link>
         </nav>
       </header>
 
