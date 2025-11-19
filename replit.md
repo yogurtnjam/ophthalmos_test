@@ -122,6 +122,42 @@ Preferred communication style: Simple, everyday language.
 - Integrated into ConeTest results calculation for more accurate threshold estimation
 - Replaces simple averaging with psychometric analysis (geometric mean between highest incorrect and lowest correct levels)
 
+## Recent Updates (November 19, 2025 - Part 3)
+
+**Ratio-Based Accuracy Tracking Across All Games:**
+
+**Problem:** Games used binary pass/fail scoring (perfect = success, any mistake = failure), which didn't capture nuanced performance differences between filter types.
+
+**Solution:** Implemented ratio-based accuracy tracking for all three task games with real-time display and 50% pass threshold.
+
+**Implementation:**
+
+**Tile Matching Game:**
+- Tracks `correctAnswers` and `round` state
+- Each click increments round counter
+- Correct clicks increment `correctAnswers`
+- After 3 rounds, calculates accuracy = correctAnswers / 3
+- Displays "Round X of 3    Accuracy: Y/Z (W%)" after first round
+- Passes if accuracy >= 50% (at least 2 out of 3 correct)
+
+**Card Matching Game:**
+- Tracks `correctMatches` and `totalAttempts` state
+- Each pair attempt increments `totalAttempts`
+- Successful matches increment `correctMatches`
+- Displays "Accuracy: X/Y (Z%)" during gameplay
+- Passes if accuracy >= 50% (e.g., 5/8 = 63% passes, 3/8 = 38% fails)
+- Allows partial credit for imperfect performance
+
+**Color Matcher Game:**
+- Already had accuracy tracking (scroll distance from target)
+- Maintains existing threshold-based scoring
+
+**Expected Data:**
+- Statistics page now shows more nuanced performance metrics
+- Users can score 33%, 67%, or 100% on tile game (1/3, 2/3, 3/3 correct)
+- Card game accuracy varies based on total attempts (e.g., 6/10 = 60%)
+- Better differentiation between custom adaptive filter and OS preset filter effectiveness
+
 ## Recent Updates (November 19, 2025 - Part 2)
 
 **Randomized Color System for Filter Verification:**
