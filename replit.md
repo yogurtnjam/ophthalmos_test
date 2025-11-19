@@ -4,6 +4,13 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 19, 2025)
 
+**Universal Button Styling:**
+- Updated all buttons to have consistent white background with black text
+- Added shadow underneath all buttons (shadow-md baseline)
+- Implemented pop-up effect on hover with shadow increase (shadow-lg) and upward translation (-translate-y-0.5)
+- Smooth transitions (150ms) for professional feel
+- All button variants (default, destructive, outline, secondary, ghost) now share the same visual style
+
 **Advanced Filter Recommendation System:**
 - Added `getRecommendedFilter()` function to determine optimal colorblind filter based on user-reported type and/or cone test scores
 - Implements intelligent blending when scores are close across multiple CVD axes (< 4 point difference on 0-40 scale)
