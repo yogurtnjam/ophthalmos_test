@@ -9,7 +9,6 @@ import ConeTest from './pages/ConeTest';
 import CVDResults from './pages/CVDResults';
 import TaskGames from './pages/TaskGames';
 import Statistics from './pages/Statistics';
-import StaircaseDemo from './pages/StaircaseDemo';
 import './styles.css';
 
 function Router() {
@@ -25,7 +24,6 @@ function Router() {
           <Link to="/cvd-results" data-testid="link-cvd-results">Results</Link>
           <Link to="/tasks" data-testid="link-tasks">Tasks</Link>
           <Link to="/statistics" data-testid="link-statistics">Statistics</Link>
-          <Link to="/staircase-demo" data-testid="link-staircase-demo">Staircase Demo</Link>
         </nav>
       </header>
 
@@ -35,7 +33,6 @@ function Router() {
         <Route path="/cvd-results" component={CVDResults} />
         <Route path="/tasks" component={TaskGames} />
         <Route path="/statistics" component={Statistics} />
-        <Route path="/staircase-demo" component={StaircaseDemo} />
       </Switch>
     </div>
   );

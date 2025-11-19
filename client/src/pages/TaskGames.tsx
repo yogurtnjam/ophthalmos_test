@@ -157,6 +157,7 @@ export default function TaskGames() {
 
       {currentGame === 'tile-game' && (
         <TileGame
+          key={`tile-${currentFilterMode}`}
           isActive={isGameActive}
           onStart={handleGameStart}
           onComplete={handleGameComplete}
@@ -167,6 +168,7 @@ export default function TaskGames() {
 
       {currentGame === 'color-match' && (
         <ColorScrollMatcher
+          key={`color-${currentFilterMode}`}
           isActive={isGameActive}
           onStart={handleGameStart}
           onComplete={handleGameComplete}
@@ -178,6 +180,7 @@ export default function TaskGames() {
 
       {currentGame === 'card-match' && (
         <CardMatchingGame
+          key={`card-${currentFilterMode}`}
           isActive={isGameActive}
           onStart={handleGameStart}
           onComplete={handleGameComplete}
