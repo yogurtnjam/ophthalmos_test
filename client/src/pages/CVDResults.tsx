@@ -98,9 +98,8 @@ export default function CVDResults() {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
-  const getHueShiftExplanation = (baseHue: number, shift: number) => {
-    // Calculate target hue after shift
-    const targetHue = (baseHue + shift + 360) % 360;
+  const getHueShiftExplanation = (baseHue: number, shift: number, cvdType: string) => {
+    if (shift === 0) return 'No shift needed';
     
     // Determine color name based on hue angle (non-overlapping ranges)
     const getColorName = (hue: number) => {
@@ -116,10 +115,47 @@ export default function CVDResults() {
     };
     
     const sourceName = getColorName(baseHue);
-    const targetName = getColorName(targetHue);
     
-    if (shift === 0) return `${sourceName} (no shift)`;
-    return `${sourceName} → towards ${targetName}`;
+    // Determine target based on CVD confusion axis
+    let targetDescription = '';
+    
+    if (cvdType === 'protan') {
+      // Protanopia: Red-green confusion axis
+      // Reds shift toward green/brown, Purples shift toward blue
+      if (baseHue >= 345 || baseHue < 45) {
+        targetDescription = 'green/brown'; // Reds and oranges
+      } else if (baseHue >= 255 && baseHue < 315) {
+        targetDescription = 'blue'; // Purples and magentas
+      } else {
+        targetDescription = 'along red-green axis';
+      }
+    } else if (cvdType === 'deutan') {
+      // Deuteranopia: Red-green confusion axis (opposite direction)
+      // Greens shift toward red/brown, Oranges/yellows affected
+      if (baseHue >= 75 && baseHue < 155) {
+        targetDescription = 'red/brown'; // Greens
+      } else if (baseHue >= 15 && baseHue < 75) {
+        targetDescription = 'red/brown'; // Oranges and yellows
+      } else {
+        targetDescription = 'along red-green axis';
+      }
+    } else if (cvdType === 'tritan') {
+      // Tritanopia: Blue-yellow confusion axis
+      // Blues shift toward green, Yellows shift toward pink/light gray
+      if (baseHue >= 195 && baseHue < 255) {
+        targetDescription = 'green'; // Blues
+      } else if (baseHue >= 45 && baseHue < 75) {
+        targetDescription = 'pink/light gray'; // Yellows
+      } else {
+        targetDescription = 'along blue-yellow axis';
+      }
+    } else {
+      // Normal or unknown type - use calculated target
+      const targetHue = (baseHue + shift + 360) % 360;
+      targetDescription = getColorName(targetHue);
+    }
+    
+    return `${sourceName} → ${targetDescription}`;
   };
 
   return (
@@ -240,7 +276,7 @@ export default function CVDResults() {
                     {advancedFilterParams.hueShift.red > 0 ? '+' : ''}{advancedFilterParams.hueShift.red}°
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(0, advancedFilterParams.hueShift.red)}
+                    {getHueShiftExplanation(0, advancedFilterParams.hueShift.red, coneTestResult.detectedType)}
                   </div>
                 </div>
                 <div className="space-y-1 p-3 rounded bg-muted/50">
@@ -249,7 +285,7 @@ export default function CVDResults() {
                     {advancedFilterParams.hueShift.green > 0 ? '+' : ''}{advancedFilterParams.hueShift.green}°
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(120, advancedFilterParams.hueShift.green)}
+                    {getHueShiftExplanation(120, advancedFilterParams.hueShift.green, coneTestResult.detectedType)}
                   </div>
                 </div>
                 <div className="space-y-1 p-3 rounded bg-muted/50">
@@ -258,7 +294,7 @@ export default function CVDResults() {
                     {advancedFilterParams.hueShift.blue > 0 ? '+' : ''}{advancedFilterParams.hueShift.blue}°
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(240, advancedFilterParams.hueShift.blue)}
+                    {getHueShiftExplanation(240, advancedFilterParams.hueShift.blue, coneTestResult.detectedType)}
                   </div>
                 </div>
               </div>

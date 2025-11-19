@@ -13,7 +13,10 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 - Calculates average by aggregating accuracy across all three task games
 
 **CVD Results Page Enhancements:**
-- Added comprehensive hue shift explanations showing both source and target colors (e.g., "Red → towards Yellow")
+- Added confusion axis-aware hue shift explanations based on CVD type:
+  - Protanopia: Reds shift toward green/brown, Purples shift toward blue
+  - Deuteranopia: Greens shift toward red/brown, Oranges/yellows affected
+  - Tritanopia: Blues shift toward green, Yellows shift toward pink/light gray
 - Implemented visual color spectrum gradient bar displaying the full 0°-360° hue wheel with labeled markers at key positions
 - Uses non-overlapping hue ranges for accurate color name mapping
 
