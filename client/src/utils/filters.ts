@@ -1,39 +1,74 @@
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from './color';
 import { OSPresetFilter, RGBAdjustment, AdvancedFilterParams } from '../../../shared/schema';
 
-// Apply OS preset filters (iOS/Android color blindness modes)
-export function applyOSPresetFilter(hex: string, filterType: OSPresetFilter): string {
-  const { r, g, b } = hexToRgb(hex);
+// 3×3 matrices from the classic Coblis / Colorjack implementation (iOS-style)
+// See: https://gist.github.com/Lokno/df7c3bfdc9ad32558bb7
+const CVD_MATRICES: Record<OSPresetFilter, number[][]> = {
+  grayscale: [
+    [0.299, 0.587, 0.114],
+    [0.299, 0.587, 0.114],
+    [0.299, 0.587, 0.114],
+  ],
+  protanopia: [
+    [0.567, 0.433, 0.0],
+    [0.558, 0.442, 0.0],
+    [0.0,   0.242, 0.758],
+  ],
+  deuteranopia: [
+    [0.625, 0.375, 0.0],
+    [0.700, 0.300, 0.0],
+    [0.0,   0.300, 0.700],
+  ],
+  tritanopia: [
+    [0.950, 0.050, 0.0],
+    [0.0,   0.433, 0.567],
+    [0.0,   0.475, 0.525],
+  ],
+};
 
-  switch (filterType) {
-    case 'protanopia': // Red deficiency
-      return rgbToHex(
-        Math.round(0.567 * r + 0.433 * g + 0 * b),
-        Math.round(0.558 * r + 0.442 * g + 0 * b),
-        Math.round(0 * r + 0.242 * g + 0.758 * b)
-      );
+function clamp255(x: number): number {
+  return Math.max(0, Math.min(255, x));
+}
 
-    case 'deuteranopia': // Green deficiency
-      return rgbToHex(
-        Math.round(0.625 * r + 0.375 * g + 0 * b),
-        Math.round(0.7 * r + 0.3 * g + 0 * b),
-        Math.round(0 * r + 0.3 * g + 0.7 * b)
-      );
+function applyMatrix(
+  r: number,
+  g: number,
+  b: number,
+  mat: number[][]
+): { r: number; g: number; b: number } {
+  const r2 = mat[0][0] * r + mat[0][1] * g + mat[0][2] * b;
+  const g2 = mat[1][0] * r + mat[1][1] * g + mat[1][2] * b;
+  const b2 = mat[2][0] * r + mat[2][1] * g + mat[2][2] * b;
+  return { r: clamp255(r2), g: clamp255(g2), b: clamp255(b2) };
+}
 
-    case 'tritanopia': // Blue deficiency
-      return rgbToHex(
-        Math.round(0.95 * r + 0.05 * g + 0 * b),
-        Math.round(0 * r + 0.433 * g + 0.567 * b),
-        Math.round(0 * r + 0.475 * g + 0.525 * b)
-      );
+/**
+ * Apply iOS-style color-blind filter (OS preset filters)
+ * 
+ * @param colorHex   Input color as #rrggbb
+ * @param preset     Which iOS-like filter to apply
+ * @param intensity  0–1, how strong the filter is (like iOS slider). Default: 1 (full intensity)
+ */
+export function applyOSPresetFilter(
+  colorHex: string,
+  preset: OSPresetFilter,
+  intensity = 1
+): string {
+  const rgb = hexToRgb(colorHex);
+  if (!rgb) return colorHex; // fall back if parsing fails
 
-    case 'grayscale': // Complete color blindness
-      const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
-      return rgbToHex(gray, gray, gray);
+  const mat = CVD_MATRICES[preset];
+  const filtered = applyMatrix(rgb.r, rgb.g, rgb.b, mat);
 
-    default:
-      return hex;
-  }
+  // Blend original + filtered based on intensity,
+  // so intensity=0 is original, 1 is full filter.
+  const mix = (orig: number, f: number) => orig + (f - orig) * intensity;
+
+  const r = Math.round(mix(rgb.r, filtered.r));
+  const g = Math.round(mix(rgb.g, filtered.g));
+  const b = Math.round(mix(rgb.b, filtered.b));
+
+  return rgbToHex(r, g, b);
 }
 
 /**

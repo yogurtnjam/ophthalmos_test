@@ -60,6 +60,7 @@ export default function TaskGames() {
       correct,
       timestamp: new Date().toISOString(),
     };
+    console.log('[TaskGames] Saving task performance:', { taskId: currentGame, filterType: currentFilterMode, timeMs });
     addTaskPerformance(performance);
     setIsGameActive(false);
 
@@ -423,6 +424,9 @@ function ColorScrollMatcher({
 }
 
 // Game 3: Card Matching
+// Card colors defined outside component to prevent re-renders
+const CARD_COLORS = ['#e63946', '#f4a261', '#2a9d8f', '#e76f51', '#264653', '#e9c46a'];
+
 function CardMatchingGame({
   isActive,
   onStart,
@@ -436,7 +440,6 @@ function CardMatchingGame({
   onClick: () => void;
   applyFilter: (color: string) => string;
 }) {
-  const cardColors = ['#e63946', '#f4a261', '#2a9d8f', '#e76f51', '#264653', '#e9c46a'];
   const [cards, setCards] = useState<string[]>([]);
 
   const [selected, setSelected] = useState<number[]>([]);
@@ -446,13 +449,13 @@ function CardMatchingGame({
   // Generate and shuffle cards when game becomes active
   useEffect(() => {
     if (isActive && cards.length === 0) {
-      const pairs = [...cardColors, ...cardColors];
+      const pairs = [...CARD_COLORS, ...CARD_COLORS];
       setCards(pairs.sort(() => Math.random() - 0.5));
       setSelected([]);
       setMatched([]);
       setIsChecking(false);
     }
-  }, [isActive, cards.length, cardColors]);
+  }, [isActive, cards.length]);
 
   // Reset cards when game becomes inactive
   useEffect(() => {

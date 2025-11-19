@@ -8,6 +8,7 @@ export default function Statistics() {
   // Group performances by task and filter
   const getTaskStats = (taskId: string, filterType: string) => {
     const tasks = taskPerformances.filter(t => t.taskId === taskId && t.filterType === filterType);
+    console.log(`[Statistics] getTaskStats for taskId=${taskId}, filterType=${filterType}: found ${tasks.length} tasks`);
     if (tasks.length === 0) return null;
 
     const totalTime = tasks.reduce((sum, t) => sum + t.timeMs, 0);
@@ -24,7 +25,9 @@ export default function Statistics() {
     };
   };
 
-  const taskIds = ['tile-1', 'tile-2', 'color-match', 'card-match'];
+  const taskIds = ['tile-game', 'color-match', 'card-match'];
+  console.log('[Statistics] All task performances:', taskPerformances);
+  console.log('[Statistics] Selected OS Preset:', state.selectedOSPreset);
   const customStats = taskIds.map(id => ({ id, stats: getTaskStats(id, 'custom') }));
   const presetStats = taskIds.map(id => ({ id, stats: getTaskStats(id, state.selectedOSPreset) }));
 
@@ -43,10 +46,8 @@ export default function Statistics() {
 
   const getTaskLabel = (id: string) => {
     switch (id) {
-      case 'tile-1':
-        return 'Tile Game 1';
-      case 'tile-2':
-        return 'Tile Game 2';
+      case 'tile-game':
+        return 'Tile Matching';
       case 'color-match':
         return 'Color Matcher';
       case 'card-match':
