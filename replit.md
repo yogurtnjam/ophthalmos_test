@@ -2,6 +2,26 @@
 
 OPHTHALMOS is a research application designed to evaluate personalized adaptive user interfaces for individuals with color vision deficiency (CVD). It assesses users' cone sensitivities, allows for customization of RGB hue adjustments, and compares the performance of custom adaptive filters against standard OS-level preset filters (protanopia, deuteranopia, tritanopia, grayscale) on visual tasks. The application collects quantitative metrics (time, accuracy, interactions) to measure the effectiveness of these color adaptation strategies. The business vision is to provide a robust platform for researching and developing advanced, personalized color correction technologies, potentially leading to improved accessibility and visual experiences for millions globally.
 
+# Recent Changes (November 19, 2025)
+
+**Enhanced Tile Matching Game Randomization:**
+- Each of the 3 rounds now generates completely fresh random colors using new HSL seed values instead of reusing a pre-generated color pool
+- Ensures visual variety and prevents pattern memorization across rounds
+
+**Statistics Page Enhancements:**
+- Added average accuracy summary metrics to Total sections for both Custom and OS Preset filter columns
+- Calculates average by aggregating accuracy across all three task games
+
+**CVD Results Page Enhancements:**
+- Added comprehensive hue shift explanations showing both source and target colors (e.g., "Red → towards Yellow")
+- Implemented visual color spectrum gradient bar displaying the full 0°-360° hue wheel with labeled markers at key positions
+- Uses non-overlapping hue ranges for accurate color name mapping
+
+**Tile Matching OS Preset Compatibility Fix:**
+- Increased hue shift from 15° to 75° for creating the odd tile
+- Added 15% saturation boost and ±10 brightness adjustment
+- Ensures odd tiles remain visually distinguishable after OS preset filter transformations
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
