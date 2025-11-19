@@ -297,33 +297,27 @@ function ColorScrollMatcher({
 }) {
   const targetColor = '#e63946';
   const numColors = 20;
-  const [targetIndex, setTargetIndex] = useState(Math.floor(Math.random() * numColors));
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Generate random colors - regenerate when game starts
-  const [colors, setColors] = useState<string[]>([]);
+  // Generate initial colors
+  const generateColors = () => {
+    const newTargetIndex = Math.floor(Math.random() * numColors);
+    const cols = Array.from({ length: numColors }, (_, i) => {
+      if (i === newTargetIndex) return targetColor;
+      const h = Math.floor(Math.random() * 360);
+      return `hsl(${h}, 70%, 50%)`;
+    });
+    return { colors: cols, targetIndex: newTargetIndex };
+  };
+
+  const [gameState, setGameState] = useState(() => generateColors());
 
   // Regenerate colors when game becomes active
   useEffect(() => {
-    if (isActive && colors.length === 0) {
-      const newTargetIndex = Math.floor(Math.random() * numColors);
-      setTargetIndex(newTargetIndex);
-      
-      const cols = Array.from({ length: numColors }, (_, i) => {
-        if (i === newTargetIndex) return targetColor;
-        const h = Math.floor(Math.random() * 360);
-        return `hsl(${h}, 70%, 50%)`;
-      });
-      setColors(cols);
+    if (isActive) {
+      setGameState(generateColors());
     }
-  }, [isActive, colors.length, numColors]);
-
-  // Reset colors when game becomes inactive
-  useEffect(() => {
-    if (!isActive && colors.length > 0) {
-      setColors([]);
-    }
-  }, [isActive, colors.length]);
+  }, [isActive]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -340,7 +334,7 @@ function ColorScrollMatcher({
   const handleColorClick = (index: number) => {
     if (!isActive) return;
     onClick();
-    const correct = index === targetIndex;
+    const correct = index === gameState.targetIndex;
     onComplete(correct);
   };
 
@@ -391,7 +385,7 @@ function ColorScrollMatcher({
               borderRadius: 12,
             }}
             data-testid="color-scroller">
-            {colors.map((color, i) => (
+            {gameState.colors.map((color, i) => (
               <div
                 key={i}
                 role="button"
