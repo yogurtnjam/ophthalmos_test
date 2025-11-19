@@ -286,8 +286,11 @@ function TileGame({
     if (nextRound >= MIN_ROUNDS) {
       // Completed all 3 rounds - calculate accuracy as ratio
       const accuracyRatio = newCorrectCount / MIN_ROUNDS;
-      // Pass true if accuracy >= 50%, otherwise false
-      onComplete(accuracyRatio >= 0.5);
+      // Pass both correct status and actual accuracy ratio
+      onComplete({ 
+        correct: accuracyRatio >= 0.5, 
+        accuracy: accuracyRatio 
+      });
     } else {
       // Generate new round for next attempt
       generateNewRound();
@@ -396,7 +399,11 @@ function ColorScrollMatcher({
     if (!isActive) return;
     onClick();
     const correct = index === gameState.targetIndex;
-    onComplete(correct);
+    // Pass accuracy as 1 or 0 for single-attempt game
+    onComplete({ 
+      correct, 
+      accuracy: correct ? 1 : 0 
+    });
   };
 
   return (
