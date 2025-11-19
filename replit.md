@@ -4,6 +4,27 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 19, 2025)
 
+**Task Accuracy System Overhaul:**
+- Extended TaskPerformance schema with optional `accuracy` field (0-1 ratio) for precise performance measurement
+- Updated all three task games (Tile Matching, Color Scroll, Card Matching) to pass structured `{correct, accuracy}` objects to onComplete
+- Statistics page now displays real accuracy percentages instead of just pass/fail status
+- Tile Matching: accuracy = correctRounds/totalRounds (3 rounds)
+- Color Scroll: accuracy = 1 or 0 (single attempt)
+- Card Matching: accuracy = correctMatches/totalAttempts
+
+**Normal Vision Filter Handling:**
+- Added conditional logic to skip all filter transformations (both custom adaptive and OS presets) when user's detected CVD type is "normal"
+- Ensures users with normal color vision see unaltered colors during task games
+
+**Professional UI Redesign (Myers-Briggs Style):**
+- Implemented professional teal (#0d9488) primary and purple (#8b5cf6) secondary color scheme
+- Redesigned buttons with larger sizes (14px/28px padding), hover elevations, and color-matched shadows
+- Enhanced card styling with subtle borders and layered shadows
+- Improved typography with better letter spacing, weights, and hierarchy
+- Added professional gradient background (light blue to white)
+- Better input focus states with ring animations matching primary color
+- Improved tile hover interactions with scale transforms and border highlights
+
 **Enhanced Tile Matching Game Randomization:**
 - Each of the 3 rounds now generates completely fresh random colors using new HSL seed values instead of reusing a pre-generated color pool
 - Ensures visual variety and prevents pattern memorization across rounds
