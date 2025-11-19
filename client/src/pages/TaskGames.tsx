@@ -465,7 +465,8 @@ function CardMatchingGame({
   const [selected, setSelected] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [isChecking, setIsChecking] = useState(false);
-  const [mistakes, setMistakes] = useState(0);
+  const [correctMatches, setCorrectMatches] = useState(0);
+  const [totalAttempts, setTotalAttempts] = useState(0);
 
   // Generate and shuffle cards when game becomes active
   useEffect(() => {
@@ -475,7 +476,8 @@ function CardMatchingGame({
       setSelected([]);
       setMatched([]);
       setIsChecking(false);
-      setMistakes(0);
+      setCorrectMatches(0);
+      setTotalAttempts(0);
     }
   }, [isActive, cards.length, cardColors]);
 
@@ -503,16 +505,25 @@ function CardMatchingGame({
       setIsChecking(true);
       const [first, second] = newSelected;
       
+      // Increment total attempts
+      setTotalAttempts(t => t + 1);
+      
       if (cards[first] === cards[second]) {
-        // Match found - add to matched and clear selected
+        // Match found - increment correct matches and add to matched
+        setCorrectMatches(c => c + 1);
         setTimeout(() => {
           setMatched(prevMatched => {
             const newMatched = [...prevMatched, first, second];
             // Check if all matched
             if (newMatched.length === cards.length) {
-              // Perfect score if no mistakes, otherwise failed
-              const perfect = mistakes === 0;
-              setTimeout(() => onComplete(perfect), 500);
+              // Calculate accuracy as ratio of correct matches to total attempts
+              setTimeout(() => {
+                const accuracy = correctMatches + 1; // +1 for the current correct match
+                const attempts = totalAttempts + 1; // +1 for the current attempt
+                const accuracyRatio = accuracy / attempts;
+                // Pass true if accuracy >= 50%, otherwise false
+                onComplete(accuracyRatio >= 0.5);
+              }, 500);
             }
             return newMatched;
           });
@@ -520,8 +531,7 @@ function CardMatchingGame({
           setIsChecking(false);
         }, 600);
       } else {
-        // No match - increment mistakes and reset selected cards
-        setMistakes(m => m + 1);
+        // No match - just reset selected cards (already counted in totalAttempts)
         setTimeout(() => {
           setSelected([]);
           setIsChecking(false);
@@ -541,35 +551,44 @@ function CardMatchingGame({
           Start Game 3
         </button>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, maxWidth: 400, margin: '0 auto' }}>
-          {cards.map((color, i) => {
-            const isMatched = matched.includes(i);
-            const isSelected = selected.includes(i);
-            
-            return (
-              <div
-                key={i}
-                onClick={() => handleCardClick(i)}
-                style={{
-                  aspectRatio: '1',
-                  borderRadius: 12,
-                  cursor: isMatched ? 'default' : 'pointer',
-                  background: applyFilter(color),
-                  border: isSelected ? '4px solid #000' : '2px solid #ddd',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 24,
-                  transition: 'all 0.3s',
-                  opacity: isMatched ? 0 : 1,
-                  visibility: isMatched ? 'hidden' : 'visible',
-                  transform: isSelected ? 'scale(0.95)' : 'scale(1)',
-                }}
-                data-testid={`card-${i}`}
-              />
-            );
-          })}
-        </div>
+        <>
+          {totalAttempts > 0 && (
+            <div style={{ marginBottom: 12, textAlign: 'center' }}>
+              <span className="small">
+                Accuracy: {correctMatches}/{totalAttempts} ({Math.round((correctMatches / totalAttempts) * 100)}%)
+              </span>
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, maxWidth: 400, margin: '0 auto' }}>
+            {cards.map((color, i) => {
+              const isMatched = matched.includes(i);
+              const isSelected = selected.includes(i);
+              
+              return (
+                <div
+                  key={i}
+                  onClick={() => handleCardClick(i)}
+                  style={{
+                    aspectRatio: '1',
+                    borderRadius: 12,
+                    cursor: isMatched ? 'default' : 'pointer',
+                    background: applyFilter(color),
+                    border: isSelected ? '4px solid #000' : '2px solid #ddd',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 24,
+                    transition: 'all 0.3s',
+                    opacity: isMatched ? 0 : 1,
+                    visibility: isMatched ? 'hidden' : 'visible',
+                    transform: isSelected ? 'scale(0.95)' : 'scale(1)',
+                  }}
+                  data-testid={`card-${i}`}
+                />
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
