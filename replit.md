@@ -24,6 +24,9 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 - Added professional gradient background (light blue to white)
 - Better input focus states with ring animations matching primary color
 - Improved tile hover interactions with scale transforms and border highlights
+- **Start game buttons**: White background with teal text/border, uppercase styling, 16px/40px padding for prominence
+- **Cone test progress bar**: Blue (teal) progress indicator with grey remainder track
+- **Task game page enhancements**: Added teal-gradient game container, centered titles, better spacing, teal-accented stats badges
 
 **Enhanced Tile Matching Game Randomization:**
 - Each of the 3 rounds now generates completely fresh random colors using new HSL seed values instead of reusing a pre-generated color pool
