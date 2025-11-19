@@ -1,0 +1,80 @@
+import math
+
+def create_advanced_colorblind_filter(red_t, green_t, blue_t):
+    """
+    Create a research-grade, personalized adaptive filter
+    using cone thresholds and confusion-axis modeling.
+    """
+
+    # 1. Compute deficiency relative to normal cone threshold (~7%)
+    norm = 7
+    deficiency = {
+        "red":   max(0, red_t   - norm),
+        "green": max(0, green_t - norm),
+        "blue":  max(0, blue_t  - norm)
+    }
+
+    # 2. Determine color-blind type = cone with highest deficiency
+    cb_type = max(deficiency, key=deficiency.get)
+    sev = deficiency[cb_type]    # severity (0–40 typically)
+
+    # 3. Convert severity → correction strength (continuous)
+    #    Angle: 0–25° max shift
+    hue_angle = min(25, sev * 0.6)
+
+    #    Saturation boost: 0–0.8×
+    sat_boost = min(0.8, sev * 0.02)
+
+    #    Luminance boost: 0–25%
+    lum_gain = min(0.25, sev * 0.006)
+
+    # 4. Confusion line hue-shifting rules
+    # These follow known chromaticity confusion axes for each type.
+
+    if cb_type == "green":  # Deutan (M-cone weak)
+        # Shift green away from red-green confusion line → toward yellow
+        green_shift = +hue_angle
+        # Shift red slightly opposite direction to widen separation
+        red_shift = -hue_angle * 0.6
+        # Blue mostly unaffected
+        blue_shift = 0
+
+        sat = {"green": sat_boost}
+        lum = {"green": lum_gain}
+
+    elif cb_type == "red":  # Protan (L-cone weak)
+        # Shift red toward magenta to break red-green confusion
+        red_shift = +hue_angle
+        green_shift = -hue_angle * 0.6
+        blue_shift = 0
+
+        sat = {"red": sat_boost}
+        lum = {"red": lum_gain}
+
+    elif cb_type == "blue":  # Tritan (S-cone weak)
+        # Shift blue away from blue-yellow confusion → toward cyan
+        blue_shift = +hue_angle
+        # Shift yellow (red+green mix) opposite direction
+        red_shift = -hue_angle * 0.3
+        green_shift = -hue_angle * 0.3
+
+        sat = {"blue": sat_boost}
+        lum = {"blue": lum_gain}
+
+    # Package final filter
+    return {
+        "type": cb_type,
+        "severity": sev,
+        "hue_shift": {
+            "red": round(red_shift, 2),
+            "green": round(green_shift, 2),
+            "blue": round(blue_shift, 2)
+        },
+        "saturation_boost": sat,
+        "luminance_gain": lum,
+        "metadata": {
+            "thresholds": {
+                "red": red_t, "green": green_t, "blue": blue_t
+            }
+        }
+    }

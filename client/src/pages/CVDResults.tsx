@@ -1,26 +1,22 @@
-import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useApp } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Eye } from 'lucide-react';
 
 export default function CVDResults() {
-  const { state, updateRGBAdjustment, nextStep } = useApp();
+  const { state, nextStep } = useApp();
   const [, setLocation] = useLocation();
-  const { coneTestResult, rgbAdjustment } = state;
+  const { coneTestResult, advancedFilterParams } = state;
 
-  const [redHue, setRedHue] = useState(rgbAdjustment.redHue);
-  const [greenHue, setGreenHue] = useState(rgbAdjustment.greenHue);
-  const [blueHue, setBlueHue] = useState(rgbAdjustment.blueHue);
-
-  if (!coneTestResult) {
+  if (!coneTestResult || !advancedFilterParams) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card>
           <CardHeader>
             <CardTitle>Complete Cone Test First</CardTitle>
-            <CardDescription>You need to complete the cone contrast test before adjusting colors.</CardDescription>
+            <CardDescription>You need to complete the cone contrast test before viewing your filter.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => setLocation('/cone-test')} data-testid="button-go-to-test">
@@ -33,7 +29,6 @@ export default function CVDResults() {
   }
 
   const handleContinue = () => {
-    updateRGBAdjustment({ redHue, greenHue, blueHue });
     nextStep();
     setLocation('/tasks');
   };
@@ -56,13 +51,13 @@ export default function CVDResults() {
   const getCVDDescription = (type: string) => {
     switch (type) {
       case 'protan':
-        return 'Your test indicates reduced sensitivity to red wavelengths. We will create a custom color filter to enhance red discrimination.';
+        return 'Your test indicates reduced sensitivity to red wavelengths. We have created a custom color filter to enhance red discrimination.';
       case 'deutan':
-        return 'Your test indicates reduced sensitivity to green wavelengths. We will create a custom color filter to enhance green discrimination.';
+        return 'Your test indicates reduced sensitivity to green wavelengths. We have created a custom color filter to enhance green discrimination.';
       case 'tritan':
-        return 'Your test indicates reduced sensitivity to blue wavelengths. We will create a custom color filter to enhance blue-yellow discrimination.';
+        return 'Your test indicates reduced sensitivity to blue wavelengths. We have created a custom color filter to enhance blue-yellow discrimination.';
       case 'normal':
-        return 'Your cone sensitivity appears normal across all wavelengths. You can still customize color adjustments for optimal viewing comfort.';
+        return 'Your cone sensitivity appears normal across all wavelengths. A minimal adaptive filter has been generated for optimal viewing comfort.';
       default:
         return '';
     }
@@ -71,6 +66,31 @@ export default function CVDResults() {
   // Convert score (0-200) to a normalized 0-1 value for visualization
   const getNormalizedSensitivity = (score: number) => {
     return Math.max(0, Math.min(1, score / 150)); // 150+ is excellent, scale to 0-1
+  };
+
+  const getConeTypeLabel = (type: 'red' | 'green' | 'blue') => {
+    switch (type) {
+      case 'red':
+        return 'L-cone (Red)';
+      case 'green':
+        return 'M-cone (Green)';
+      case 'blue':
+        return 'S-cone (Blue)';
+    }
+  };
+
+  const getSeverityLabel = (severity: number) => {
+    if (severity < 5) return 'Minimal';
+    if (severity < 15) return 'Mild';
+    if (severity < 25) return 'Moderate';
+    return 'Severe';
+  };
+
+  const getSeverityColor = (severity: number) => {
+    if (severity < 5) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+    if (severity < 15) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+    if (severity < 25) return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+    return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
   return (
@@ -141,149 +161,125 @@ export default function CVDResults() {
           </CardContent>
         </Card>
 
-        {/* Color Adjustment Controls */}
-        <Card data-testid="card-color-adjustment">
+        {/* Advanced Filter Parameters */}
+        <Card data-testid="card-filter-parameters">
           <CardHeader>
-            <CardTitle>Customize Color Adjustments</CardTitle>
+            <div className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              <CardTitle>Your Personalized Adaptive Filter</CardTitle>
+            </div>
             <CardDescription>
-              Adjust the hue rotation for each primary color to create your personalized adaptive filter.
-              These adjustments will be compared against standard OS preset filters in the next phase.
+              This filter has been automatically generated based on your cone test results. 
+              It uses advanced algorithms that consider confusion lines, saturation boost, brightness increase, 
+              and severity-based scaling to optimize color discrimination for your specific vision profile.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Red Hue Adjustment */}
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label htmlFor="red-hue" className="text-sm font-medium">
-                  Red Hue Rotation
-                </label>
-                <span className="text-sm text-muted-foreground font-mono" data-testid="text-red-hue">
-                  {redHue}°
-                </span>
-              </div>
-              <Slider
-                id="red-hue"
-                value={[redHue]}
-                onValueChange={([value]) => setRedHue(value)}
-                min={0}
-                max={360}
-                step={1}
-                className="w-full"
-                data-testid="slider-red-hue"
-              />
-              <div className="h-8 rounded" style={{ 
-                background: `linear-gradient(to right, 
-                  hsl(0, 80%, 60%), 
-                  hsl(60, 80%, 60%), 
-                  hsl(120, 80%, 60%), 
-                  hsl(180, 80%, 60%), 
-                  hsl(240, 80%, 60%), 
-                  hsl(300, 80%, 60%), 
-                  hsl(360, 80%, 60%)
-                )`
-              }} />
-            </div>
-
-            {/* Green Hue Adjustment */}
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label htmlFor="green-hue" className="text-sm font-medium">
-                  Green Hue Rotation
-                </label>
-                <span className="text-sm text-muted-foreground font-mono" data-testid="text-green-hue">
-                  {greenHue}°
-                </span>
-              </div>
-              <Slider
-                id="green-hue"
-                value={[greenHue]}
-                onValueChange={([value]) => setGreenHue(value)}
-                min={0}
-                max={360}
-                step={1}
-                className="w-full"
-                data-testid="slider-green-hue"
-              />
-              <div className="h-8 rounded" style={{ 
-                background: `linear-gradient(to right, 
-                  hsl(0, 80%, 60%), 
-                  hsl(60, 80%, 60%), 
-                  hsl(120, 80%, 60%), 
-                  hsl(180, 80%, 60%), 
-                  hsl(240, 80%, 60%), 
-                  hsl(300, 80%, 60%), 
-                  hsl(360, 80%, 60%)
-                )`
-              }} />
-            </div>
-
-            {/* Blue Hue Adjustment */}
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label htmlFor="blue-hue" className="text-sm font-medium">
-                  Blue Hue Rotation
-                </label>
-                <span className="text-sm text-muted-foreground font-mono" data-testid="text-blue-hue">
-                  {blueHue}°
-                </span>
-              </div>
-              <Slider
-                id="blue-hue"
-                value={[blueHue]}
-                onValueChange={([value]) => setBlueHue(value)}
-                min={0}
-                max={360}
-                step={1}
-                className="w-full"
-                data-testid="slider-blue-hue"
-              />
-              <div className="h-8 rounded" style={{ 
-                background: `linear-gradient(to right, 
-                  hsl(0, 80%, 60%), 
-                  hsl(60, 80%, 60%), 
-                  hsl(120, 80%, 60%), 
-                  hsl(180, 80%, 60%), 
-                  hsl(240, 80%, 60%), 
-                  hsl(300, 80%, 60%), 
-                  hsl(360, 80%, 60%)
-                )`
-              }} />
-            </div>
-
-            {/* Preview */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Color Preview</h4>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="h-16 rounded" style={{ 
-                  backgroundColor: `hsl(${redHue}, 70%, 60%)` 
-                }}>
-                  <div className="text-xs text-center mt-5 font-semibold text-white drop-shadow">Red</div>
+            {/* Deficiency Type and Severity */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">Deficient Cone Type</div>
+                <div className="text-lg font-semibold" data-testid="text-filter-cone-type">
+                  {getConeTypeLabel(advancedFilterParams.type)}
                 </div>
-                <div className="h-16 rounded" style={{ 
-                  backgroundColor: `hsl(${greenHue}, 70%, 60%)` 
-                }}>
-                  <div className="text-xs text-center mt-5 font-semibold text-white drop-shadow">Green</div>
-                </div>
-                <div className="h-16 rounded" style={{ 
-                  backgroundColor: `hsl(${blueHue}, 70%, 60%)` 
-                }}>
-                  <div className="text-xs text-center mt-5 font-semibold text-white drop-shadow">Blue</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">Deficiency Severity</div>
+                <div className="flex items-center gap-2">
+                  <Badge className={getSeverityColor(advancedFilterParams.severity)} data-testid="badge-severity">
+                    {getSeverityLabel(advancedFilterParams.severity)}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground" data-testid="text-severity-value">
+                    {advancedFilterParams.severity.toFixed(1)}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4">
-              <Button 
-                onClick={handleContinue} 
-                className="w-full"
-                size="lg"
-                data-testid="button-continue"
-              >
-                Continue to Task Comparison
-              </Button>
+            {/* Hue Shifts (Confusion Line Correction) */}
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm font-medium mb-1">Hue Shifts (Confusion Line Correction)</div>
+                <div className="text-xs text-muted-foreground">
+                  Colors are rotated away from confusion lines to enhance discrimination
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1 p-3 rounded bg-muted/50">
+                  <div className="text-xs text-muted-foreground">Red</div>
+                  <div className="text-lg font-mono" data-testid="text-hue-red">
+                    {advancedFilterParams.hueShift.red > 0 ? '+' : ''}{advancedFilterParams.hueShift.red}°
+                  </div>
+                </div>
+                <div className="space-y-1 p-3 rounded bg-muted/50">
+                  <div className="text-xs text-muted-foreground">Green</div>
+                  <div className="text-lg font-mono" data-testid="text-hue-green">
+                    {advancedFilterParams.hueShift.green > 0 ? '+' : ''}{advancedFilterParams.hueShift.green}°
+                  </div>
+                </div>
+                <div className="space-y-1 p-3 rounded bg-muted/50">
+                  <div className="text-xs text-muted-foreground">Blue</div>
+                  <div className="text-lg font-mono" data-testid="text-hue-blue">
+                    {advancedFilterParams.hueShift.blue > 0 ? '+' : ''}{advancedFilterParams.hueShift.blue}°
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Saturation Boost */}
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm font-medium mb-1">Saturation Boost</div>
+                <div className="text-xs text-muted-foreground">
+                  Enhances color vividness for weak cone channels
+                </div>
+              </div>
+              <div className="space-y-2">
+                {Object.entries(advancedFilterParams.saturationBoost).map(([cone, boost]) => (
+                  <div key={cone} className="flex justify-between items-center p-2 rounded bg-muted/50">
+                    <span className="text-sm capitalize">{cone}</span>
+                    <span className="text-sm font-mono" data-testid={`text-sat-${cone}`}>
+                      +{(boost * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Luminance Gain */}
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm font-medium mb-1">Brightness Increase</div>
+                <div className="text-xs text-muted-foreground">
+                  Increases luminance for weak color channels
+                </div>
+              </div>
+              <div className="space-y-2">
+                {Object.entries(advancedFilterParams.luminanceGain).map(([cone, gain]) => (
+                  <div key={cone} className="flex justify-between items-center p-2 rounded bg-muted/50">
+                    <span className="text-sm capitalize">{cone}</span>
+                    <span className="text-sm font-mono" data-testid={`text-lum-${cone}`}>
+                      +{(gain * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Continue Button */}
+        <div className="flex justify-center pb-8">
+          <Button 
+            onClick={handleContinue} 
+            size="lg"
+            data-testid="button-continue"
+            className="gap-2"
+          >
+            Continue to Task Comparison
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { SessionData, TaskPerformance, ConeTestResult, RGBAdjustment } from "../shared/schema";
+import { SessionData, TaskPerformance, ConeTestResult, RGBAdjustment, AdvancedFilterParams } from "../shared/schema";
 
 export interface IStorage {
   // Session management
@@ -9,6 +9,7 @@ export interface IStorage {
   // Session updates
   updateConeTestResult(sessionId: string, result: ConeTestResult): Promise<void>;
   updateRGBAdjustment(sessionId: string, adjustment: RGBAdjustment): Promise<void>;
+  updateAdvancedFilter(sessionId: string, params: AdvancedFilterParams): Promise<void>;
   
   // Task performance
   saveTaskPerformance(sessionId: string, performance: TaskPerformance): Promise<void>;
@@ -47,6 +48,14 @@ export class MemStorage implements IStorage {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.rgbAdjustment = adjustment;
+      this.sessions.set(sessionId, session);
+    }
+  }
+
+  async updateAdvancedFilter(sessionId: string, params: AdvancedFilterParams): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.advancedFilterParams = params;
       this.sessions.set(sessionId, session);
     }
   }

@@ -1,0 +1,91 @@
+type IOSPreset =
+  | 'grayscale'      // iOS "Grayscale"
+  | 'protanopia'     // "Red/Green – Protanopia"
+  | 'deuteranopia'   // "Green/Red – Deuteranopia"
+  | 'tritanopia';    // "Blue/Yellow – Tritanopia";
+
+// 3×3 matrices from the classic Coblis / Colorjack implementation.
+// See: https://gist.github.com/Lokno/df7c3bfdc9ad32558bb7  :contentReference[oaicite:5]{index=5}
+const CVD_MATRICES: Record<IOSPreset, number[][]> = {
+  grayscale: [
+    [0.299, 0.587, 0.114],
+    [0.299, 0.587, 0.114],
+    [0.299, 0.587, 0.114],
+  ],
+  protanopia: [
+    [0.567, 0.433, 0.0],
+    [0.558, 0.442, 0.0],
+    [0.0,   0.242, 0.758],
+  ],
+  deuteranopia: [
+    [0.625, 0.375, 0.0],
+    [0.700, 0.300, 0.0],
+    [0.0,   0.300, 0.700],
+  ],
+  tritanopia: [
+    [0.950, 0.050, 0.0],
+    [0.0,   0.433, 0.567],
+    [0.0,   0.475, 0.525],
+  ],
+};
+
+function clamp255(x: number): number {
+  return Math.max(0, Math.min(255, x));
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex);
+  if (!m) return null;
+  const int = parseInt(m[1], 16);
+  return {
+    r: (int >> 16) & 0xff,
+    g: (int >> 8) & 0xff,
+    b: int & 0xff,
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const toHex = (v: number) => clamp255(Math.round(v)).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function applyMatrix(
+  r: number,
+  g: number,
+  b: number,
+  mat: number[][]
+): { r: number; g: number; b: number } {
+  const r2 = mat[0][0] * r + mat[0][1] * g + mat[0][2] * b;
+  const g2 = mat[1][0] * r + mat[1][1] * g + mat[1][2] * b;
+  const b2 = mat[2][0] * r + mat[2][1] * g + mat[2][2] * b;
+  return { r: clamp255(r2), g: clamp255(g2), b: clamp255(b2) };
+}
+
+/**
+ * Approximate iOS-style colour-blind filter.
+ *
+ * @param colorHex   Input colour as #rrggbb
+ * @param preset     Which iOS-like filter to apply
+ * @param intensity  0–1, how strong the filter is (like iOS slider)
+ */
+export function applyIOSPresetFilter(
+  colorHex: string,
+  preset: IOSPreset,
+  intensity = 1
+): string {
+  const rgb = hexToRgb(colorHex);
+  if (!rgb) return colorHex; // fall back if parsing fails
+
+  const mat = CVD_MATRICES[preset];
+  const filtered = applyMatrix(rgb.r, rgb.g, rgb.b, mat);
+
+  // Blend original + filtered based on intensity,
+  // so intensity=0 is original, 1 is full filter.
+  const mix = (orig: number, f: number) => orig + (f - orig) * intensity;
+
+  const r = mix(rgb.r, filtered.r);
+  const g = mix(rgb.g, filtered.g);
+  const b = mix(rgb.b, filtered.b);
+
+  return rgbToHex(r, g, b);
+}

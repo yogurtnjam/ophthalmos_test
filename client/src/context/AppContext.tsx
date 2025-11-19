@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
-import { Questionnaire, ConeTestResult, RGBAdjustment, TaskPerformance, OSPresetFilter } from '../../../shared/schema';
+import { Questionnaire, ConeTestResult, RGBAdjustment, AdvancedFilterParams, TaskPerformance, OSPresetFilter } from '../../../shared/schema';
 import { apiRequest } from '../lib/queryClient';
+import { createFilterFromConeTest } from '../lib/advancedFilter';
 
 interface AppState {
   // Current session ID
@@ -12,7 +13,10 @@ interface AppState {
   // Cone test results
   coneTestResult: ConeTestResult | null;
   
-  // RGB adjustments
+  // Advanced filter parameters (automatically generated from cone test)
+  advancedFilterParams: AdvancedFilterParams | null;
+  
+  // RGB adjustments (deprecated, kept for backwards compatibility)
   rgbAdjustment: RGBAdjustment;
   
   // Task performances
@@ -50,6 +54,7 @@ const defaultState: AppState = {
   sessionId: null,
   questionnaire: null,
   coneTestResult: null,
+  advancedFilterParams: null,
   rgbAdjustment: {
     redHue: 0,
     greenHue: 120,
@@ -113,12 +118,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ? 'tritanopia'
         : 'grayscale';
 
+    // Automatically generate advanced filter parameters from cone test results
+    const advancedFilterParams = createFilterFromConeTest(result);
+
     // Capture current sessionId before setState
     const currentSessionId = state.sessionId;
 
     setState(s => ({
       ...s,
       coneTestResult: result,
+      advancedFilterParams,
       selectedOSPreset: selectedPreset,
     }));
 
@@ -126,6 +135,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (currentSessionId) {
       try {
         await apiRequest('POST', `/api/sessions/${currentSessionId}/cone-test`, result);
+        // Also save the advanced filter params
+        await apiRequest('POST', `/api/sessions/${currentSessionId}/advanced-filter`, advancedFilterParams);
       } catch (error) {
         console.error('Failed to save cone test result:', error);
       }

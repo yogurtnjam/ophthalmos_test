@@ -121,3 +121,52 @@ Preferred communication style: Simple, everyday language.
 - New demo page at `/staircase-demo` for testing and visualization
 - Integrated into ConeTest results calculation for more accurate threshold estimation
 - Replaces simple averaging with psychometric analysis (geometric mean between highest incorrect and lowest correct levels)
+
+## Recent Updates (November 19, 2025)
+
+**Advanced Colorblind Filter Implementation:**
+Replaced simple RGB hue rotation system with research-grade adaptive filter based on cone test results.
+
+**Algorithm (`client/src/lib/advancedFilter.ts`):**
+- `createAdvancedColorblindFilter()` - Generates personalized filter parameters from L/M/S cone thresholds
+- Determines deficient cone type (red/green/blue) from highest threshold deviation
+- Calculates severity score (0-40 range, relative to normal threshold ~7%)
+- Generates confusion line-aware hue shifts (0-25° max)
+- Computes saturation boost (0-80%) and luminance gain (0-25%) scaled by severity
+- Implements distinct strategies for each CVD type:
+  - **Deutan (M-cone/green)**: Shifts green toward yellow, red opposite to widen separation
+  - **Protan (L-cone/red)**: Shifts red toward magenta to break red-green confusion
+  - **Tritan (S-cone/blue)**: Shifts blue toward cyan, reduces yellow components
+
+**Filter Application (`client/src/utils/filters.ts`):**
+- `applyAdvancedColorblindFilter()` - Applies filter transformations to hex colors
+- Maps colors to hue regions (red-yellow 0-60°, green-cyan 60-180°, blue-magenta 180-300°)
+- Applies region-specific hue shifts based on confusion line modeling
+- Boosts saturation and luminance for deficient cone channels
+- Preserves achromatic colors (grays) unchanged
+
+**Schema Updates (`shared/schema.ts`):**
+- New `AdvancedFilterParams` schema with typed structure:
+  - `type`: Deficient cone ('red' | 'green' | 'blue')
+  - `severity`: Numeric deficiency score
+  - `hueShift`: Per-channel rotation values (degrees)
+  - `saturationBoost`: Channel-specific saturation multipliers
+  - `luminanceGain`: Channel-specific brightness increases
+  - `metadata`: Source threshold values for traceability
+- Updated `SessionData` to include optional `advancedFilterParams` field
+- Retained deprecated `RGBAdjustment` for backwards compatibility
+
+**UI Changes (`client/src/pages/CVDResults.tsx`):**
+- Replaced manual RGB adjustment sliders with read-only filter parameter display
+- Shows auto-generated filter specifications:
+  - Deficient cone type and severity badge (Minimal/Mild/Moderate/Severe)
+  - Hue shift values for each color channel
+  - Saturation boost percentages
+  - Brightness increase percentages
+- Explains filter methodology (confusion lines, saturation/brightness adaptation, severity scaling)
+
+**Integration:**
+- AppContext automatically generates filter params when cone test completes
+- Backend routes handle advanced filter parameter persistence (`POST /api/sessions/:id/advanced-filter`)
+- TaskGames applies filter based on mode: custom uses advanced filter, OS presets use simulation matrices
+- Navigation allows direct switching between custom and OS preset filter modes for A/B comparison

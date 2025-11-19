@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from './storage';
-import { sessionDataSchema, taskPerformanceSchema, questionnaireSchema, coneTestResultSchema, rgbAdjustmentSchema, type SessionData } from '../shared/schema';
+import { sessionDataSchema, taskPerformanceSchema, questionnaireSchema, coneTestResultSchema, rgbAdjustmentSchema, advancedFilterParamsSchema, type SessionData, type ConeMetrics } from '../shared/schema';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/health', (req, res) => res.json({ ok: true }));
@@ -10,11 +10,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/sessions', async (req, res) => {
     try {
       const validatedQuestionnaire = questionnaireSchema.parse(req.body);
+      
+      // Create default cone metrics
+      const defaultConeMetrics: ConeMetrics = {
+        threshold: 0,
+        stdError: 0,
+        trials: 0,
+        avgTime: 0,
+        logCS: 0,
+        score: 0,
+        category: 'Normal'
+      };
+      
       // Create partial session with defaults
       const sessionData: SessionData = {
         questionnaire: validatedQuestionnaire,
-        coneTestResult: { L: 0, M: 0, S: 0, detectedType: 'normal' },
+        coneTestResult: { 
+          L: defaultConeMetrics, 
+          M: defaultConeMetrics, 
+          S: defaultConeMetrics, 
+          detectedType: 'normal' 
+        },
         rgbAdjustment: { redHue: 0, greenHue: 120, blueHue: 240 },
+        advancedFilterParams: undefined,
         taskPerformances: [],
         createdAt: new Date().toISOString(),
       };
@@ -63,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update RGB adjustment for a session
+  // Update RGB adjustment for a session (deprecated, kept for backwards compatibility)
   app.post('/api/sessions/:sessionId/rgb-adjustment', async (req, res) => {
     try {
       const session = await storage.getSession(req.params.sessionId);
@@ -75,6 +93,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ ok: true });
     } catch (e: any) {
       res.status(400).json({ error: e.message || 'Invalid RGB adjustment data' });
+    }
+  });
+
+  // Update advanced filter parameters for a session
+  app.post('/api/sessions/:sessionId/advanced-filter', async (req, res) => {
+    try {
+      const session = await storage.getSession(req.params.sessionId);
+      if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      const validatedParams = advancedFilterParamsSchema.parse(req.body);
+      await storage.updateAdvancedFilter(req.params.sessionId, validatedParams);
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message || 'Invalid advanced filter parameters' });
     }
   });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useApp } from '../context/AppContext';
-import { applyCustomAdaptiveFilter, applyOSPresetFilter } from '../utils/filters';
+import { applyAdvancedColorblindFilter, applyOSPresetFilter } from '../utils/filters';
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from '../utils/color';
 import { TaskPerformance } from '../../../shared/schema';
 
@@ -10,7 +10,7 @@ type GameState = 'tile-game' | 'color-match' | 'card-match' | 'complete';
 export default function TaskGames() {
   const { state, setState, addTaskPerformance } = useApp();
   const [, setLocation] = useLocation();
-  const { rgbAdjustment, selectedOSPreset, currentFilterMode } = state;
+  const { advancedFilterParams, selectedOSPreset, currentFilterMode } = state;
 
   const [currentGame, setCurrentGame] = useState<GameState>('tile-game');
   const [isGameActive, setIsGameActive] = useState(false);
@@ -33,11 +33,12 @@ export default function TaskGames() {
 
   // Apply filter to color based on current mode
   const applyFilter = (color: string): string => {
-    if (currentFilterMode === 'custom') {
-      return applyCustomAdaptiveFilter(color, rgbAdjustment);
-    } else {
+    if (currentFilterMode === 'custom' && advancedFilterParams) {
+      return applyAdvancedColorblindFilter(color, advancedFilterParams);
+    } else if (currentFilterMode !== 'custom') {
       return applyOSPresetFilter(color, currentFilterMode);
     }
+    return color; // No filter if no params available
   };
 
   const handleGameStart = () => {
@@ -307,9 +308,13 @@ function ColorScrollMatcher({
     const newTargetIndex = Math.floor(Math.random() * numColors);
     const cols = Array.from({ length: numColors }, (_, i) => {
       if (i === newTargetIndex) return targetColor;
+
       const h = Math.floor(Math.random() * 360);
-      return `hsl(${h}, 70%, 50%)`;
+      // convert HSL → RGB → HEX using your utilities
+      const { r, g, b } = hslToRgb(h, 70, 50);
+      return rgbToHex(r, g, b);
     });
+
     return { colors: cols, targetIndex: newTargetIndex };
   };
 

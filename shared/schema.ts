@@ -33,7 +33,29 @@ export const coneTestResultSchema = z.object({
 
 export type ConeTestResult = z.infer<typeof coneTestResultSchema>;
 
-// RGB Hue Adjustments Schema
+// Advanced Colorblind Filter Parameters Schema
+export const advancedFilterParamsSchema = z.object({
+  type: z.enum(["red", "green", "blue"]), // Which cone type is deficient
+  severity: z.number(), // Severity of deficiency (0-40 typically)
+  hueShift: z.object({
+    red: z.number(),
+    green: z.number(),
+    blue: z.number(),
+  }),
+  saturationBoost: z.record(z.number()), // e.g., { "red": 0.5 }
+  luminanceGain: z.record(z.number()), // e.g., { "red": 0.15 }
+  metadata: z.object({
+    thresholds: z.object({
+      red: z.number(),
+      green: z.number(),
+      blue: z.number(),
+    }),
+  }),
+});
+
+export type AdvancedFilterParams = z.infer<typeof advancedFilterParamsSchema>;
+
+// Legacy RGB Hue Adjustments Schema (deprecated, kept for backwards compatibility)
 export const rgbAdjustmentSchema = z.object({
   redHue: z.number().min(0).max(360),
   greenHue: z.number().min(0).max(360),
@@ -60,6 +82,7 @@ export const sessionDataSchema = z.object({
   questionnaire: questionnaireSchema,
   coneTestResult: coneTestResultSchema,
   rgbAdjustment: rgbAdjustmentSchema,
+  advancedFilterParams: advancedFilterParamsSchema.optional(),
   taskPerformances: z.array(taskPerformanceSchema),
   createdAt: z.string(),
 });

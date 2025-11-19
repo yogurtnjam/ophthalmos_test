@@ -1,5 +1,5 @@
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from './color';
-import { OSPresetFilter, RGBAdjustment } from '../../../shared/schema';
+import { OSPresetFilter, RGBAdjustment, AdvancedFilterParams } from '../../../shared/schema';
 
 // Apply OS preset filters (iOS/Android color blindness modes)
 export function applyOSPresetFilter(hex: string, filterType: OSPresetFilter): string {
@@ -36,11 +36,74 @@ export function applyOSPresetFilter(hex: string, filterType: OSPresetFilter): st
   }
 }
 
-// Apply custom adaptive filter based on RGB hue adjustments
-// Simplified approach: applies a global hue rotation based on user-adjusted values
-// This is a heuristic that allows users to compensate for perceived hue shifts
-// Note: This is not a scientifically rigorous LMS transformation, but rather
-// a user-customizable filter that may help with color differentiation
+/**
+ * Apply advanced colorblind filter based on cone test results
+ * 
+ * This research-grade filter uses:
+ * - Hue shifts away from confusion lines
+ * - Saturation boost for weak cones
+ * - Luminance gain for weak channels
+ * - Severity-based scaling
+ */
+export function applyAdvancedColorblindFilter(hex: string, filterParams: AdvancedFilterParams): string {
+  const { r, g, b } = hexToRgb(hex);
+  
+  // Convert to HSL for manipulation
+  const hsl = rgbToHsl(r, g, b);
+  
+  // Skip achromatic colors (grays)
+  if (hsl.s < 0.01) {
+    return hex;
+  }
+  
+  // Determine which hue shift to apply based on the color's position in hue space
+  // We apply different shifts to different hue ranges based on confusion line modeling
+  let hueShiftAmount = 0;
+  
+  // Map hue to primary color region and apply corresponding shift
+  if (hsl.h >= 0 && hsl.h < 60) {
+    // Red-Yellow region
+    hueShiftAmount = filterParams.hueShift.red;
+  } else if (hsl.h >= 60 && hsl.h < 180) {
+    // Yellow-Green-Cyan region
+    hueShiftAmount = filterParams.hueShift.green;
+  } else if (hsl.h >= 180 && hsl.h < 300) {
+    // Cyan-Blue-Magenta region
+    hueShiftAmount = filterParams.hueShift.blue;
+  } else {
+    // Magenta-Red region
+    hueShiftAmount = filterParams.hueShift.red;
+  }
+  
+  // Apply hue shift
+  let newHue = (hsl.h + hueShiftAmount + 360) % 360;
+  
+  // Apply saturation boost for the deficient cone type
+  let newSat = hsl.s;
+  const satBoostKey = filterParams.type;
+  if (filterParams.saturationBoost[satBoostKey] !== undefined) {
+    newSat = Math.min(1, hsl.s * (1 + filterParams.saturationBoost[satBoostKey]));
+  }
+  
+  // Apply luminance gain for the deficient cone type
+  let newLum = hsl.l;
+  const lumGainKey = filterParams.type;
+  if (filterParams.luminanceGain[lumGainKey] !== undefined) {
+    newLum = Math.min(1, hsl.l * (1 + filterParams.luminanceGain[lumGainKey]));
+  }
+  
+  // Convert back to RGB
+  const newRgb = hslToRgb(newHue, newSat, newLum);
+  
+  return rgbToHex(
+    Math.round(Math.max(0, Math.min(255, newRgb.r))),
+    Math.round(Math.max(0, Math.min(255, newRgb.g))),
+    Math.round(Math.max(0, Math.min(255, newRgb.b)))
+  );
+}
+
+// DEPRECATED: Legacy custom adaptive filter based on RGB hue adjustments
+// Kept for backwards compatibility but no longer used
 export function applyCustomAdaptiveFilter(hex: string, adjustment: RGBAdjustment): string {
   const { r, g, b } = hexToRgb(hex);
   
