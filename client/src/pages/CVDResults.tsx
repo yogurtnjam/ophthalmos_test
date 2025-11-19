@@ -234,70 +234,94 @@ export default function CVDResults() {
               <CardTitle>Your Personalized Adaptive Filter</CardTitle>
             </div>
             <CardDescription>
-              This filter has been automatically generated based on your cone test results. 
-              It uses advanced algorithms that consider confusion lines, saturation boost, brightness increase, 
-              and severity-based scaling to optimize color discrimination for your specific vision profile.
+              This filter has been automatically generated based on your cone test results using research-grade confusion matrix transformations (Brettel et al., 1997). 
+              It applies severity-scaled color correction along your specific confusion axis, combined with saturation boost and brightness increase 
+              to optimize color discrimination for your unique vision profile.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Deficiency Type and Severity */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">Deficient Cone Type</div>
-                <div className="text-lg font-semibold" data-testid="text-filter-cone-type">
-                  {getConeTypeLabel(advancedFilterParams.type)}
+            {/* Filter Type Overview */}
+            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">CVD Type</div>
+                  <div className="text-lg font-semibold" data-testid="text-filter-cone-type">
+                    {getConeTypeLabel(advancedFilterParams.type)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {coneTestResult.detectedType === 'protan' && 'L-cone (Long/Red) deficiency'}
+                    {coneTestResult.detectedType === 'deutan' && 'M-cone (Medium/Green) deficiency'}
+                    {coneTestResult.detectedType === 'tritan' && 'S-cone (Short/Blue) deficiency'}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">Deficiency Severity</div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getSeverityColor(advancedFilterParams.severity)} data-testid="badge-severity">
-                    {getSeverityLabel(advancedFilterParams.severity)}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground" data-testid="text-severity-value">
-                    {advancedFilterParams.severity.toFixed(1)}
-                  </span>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Deficiency Severity</div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getSeverityColor(advancedFilterParams.severity)} data-testid="badge-severity">
+                      {getSeverityLabel(advancedFilterParams.severity)}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground" data-testid="text-severity-value">
+                      {Math.min(100, (advancedFilterParams.severity / 40) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Applied to matrix transformation
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Hue Shifts (Confusion Line Correction) */}
+            {/* Confusion Axis Transformation */}
             <div className="space-y-3">
               <div>
-                <div className="text-sm font-medium mb-1">Hue Shifts (Confusion Line Correction)</div>
+                <div className="text-sm font-medium mb-1">Confusion Axis Transformation</div>
                 <div className="text-xs text-muted-foreground">
-                  Colors are rotated away from confusion lines to enhance discrimination
+                  {advancedFilterParams.severity > 0
+                    ? 'Uses confusion matrices (Brettel et al., 1997) to simulate and compensate for color perception along your specific confusion axis'
+                    : 'Minimal transformation applied - your color vision is close to normal'}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Red (0°)</div>
-                  <div className="text-lg font-mono" data-testid="text-hue-red">
-                    {advancedFilterParams.hueShift.red > 0 ? '+' : ''}{advancedFilterParams.hueShift.red}°
+              {advancedFilterParams.severity > 0 ? (
+                <div className="p-4 rounded-lg bg-gradient-to-br from-muted/30 to-muted/60 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Eye className="w-5 h-5 text-primary mt-0.5" />
+                    <div className="flex-1 space-y-2">
+                      <div className="text-sm font-medium">
+                        {coneTestResult.detectedType === 'protan' && 'Red-Green Confusion Axis (Protanopia)'}
+                        {coneTestResult.detectedType === 'deutan' && 'Red-Green Confusion Axis (Deuteranopia)'}
+                        {coneTestResult.detectedType === 'tritan' && 'Blue-Yellow Confusion Axis (Tritanopia)'}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {coneTestResult.detectedType === 'protan' && (
+                          <>Reds appear shifted toward greens and browns. Purples appear more blue. The filter applies a confusion matrix to compensate for L-cone deficiency.</>
+                        )}
+                        {coneTestResult.detectedType === 'deutan' && (
+                          <>Greens appear shifted toward reds and browns. Yellow-orange hues are affected. The filter applies a confusion matrix to compensate for M-cone deficiency.</>
+                        )}
+                        {coneTestResult.detectedType === 'tritan' && (
+                          <>Blues appear shifted toward greens. Yellows appear pinkish or light gray. The filter applies a confusion matrix to compensate for S-cone deficiency.</>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(0, advancedFilterParams.hueShift.red, coneTestResult.detectedType)}
+                
+                {/* Severity-based matrix scaling */}
+                <div className="pt-2 border-t border-border/50">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Matrix Intensity (Severity-Scaled)</span>
+                    <span className="text-sm font-mono font-semibold" data-testid="text-matrix-intensity">
+                      {Math.min(100, (advancedFilterParams.severity / 40) * 100).toFixed(0)}%
+                    </span>
                   </div>
-                </div>
-                <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Green (120°)</div>
-                  <div className="text-lg font-mono" data-testid="text-hue-green">
-                    {advancedFilterParams.hueShift.green > 0 ? '+' : ''}{advancedFilterParams.hueShift.green}°
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(120, advancedFilterParams.hueShift.green, coneTestResult.detectedType)}
-                  </div>
-                </div>
-                <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Blue (240°)</div>
-                  <div className="text-lg font-mono" data-testid="text-hue-blue">
-                    {advancedFilterParams.hueShift.blue > 0 ? '+' : ''}{advancedFilterParams.hueShift.blue}°
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {getHueShiftExplanation(240, advancedFilterParams.hueShift.blue, coneTestResult.detectedType)}
+                  <div className="mt-2 h-2 bg-muted/30 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-primary transition-all duration-500"
+                      style={{ width: `${Math.min(100, (advancedFilterParams.severity / 40) * 100)}%` }}
+                    />
                   </div>
                 </div>
               </div>
+              ) : null}
 
               {/* Color Spectrum Visualization */}
               <div className="space-y-2">
