@@ -63,25 +63,27 @@ const AppContext = createContext<AppContextType | null>(null);
 
 // Generate random colors for a phase (exported for use in components)
 export function generatePhaseColors(): PhaseColors {
-  // Generate 6 random tile colors (diverse hues)
+  // Generate 6 random tile colors (highly diverse hues, saturation, and lightness)
   const tileColors = Array.from({ length: 6 }, () => {
     const h = Math.floor(Math.random() * 360);
-    const s = 60 + Math.random() * 30; // 60-90% saturation
-    const l = 40 + Math.random() * 20; // 40-60% lightness
+    const s = 40 + Math.random() * 55; // 40-95% saturation (wider range)
+    const l = 35 + Math.random() * 30; // 35-65% lightness (wider range)
     const { r, g, b } = hslToRgb(h, s, l);
     return rgbToHex(r, g, b);
   });
 
-  // Generate random target color for color matcher
+  // Generate random target color for color matcher (more variation)
   const targetHue = Math.floor(Math.random() * 360);
-  const { r: tr, g: tg, b: tb } = hslToRgb(targetHue, 75, 55);
+  const targetSat = 50 + Math.random() * 40; // 50-90% saturation
+  const targetLight = 40 + Math.random() * 25; // 40-65% lightness
+  const { r: tr, g: tg, b: tb } = hslToRgb(targetHue, targetSat, targetLight);
   const colorMatchTarget = rgbToHex(tr, tg, tb);
 
-  // Generate 6 unique card colors (well-separated hues)
-  const cardColors = Array.from({ length: 6 }, (_, i) => {
-    const h = (i * 60 + Math.random() * 40) % 360; // Spread across color wheel
-    const s = 65 + Math.random() * 25; // 65-90% saturation
-    const l = 45 + Math.random() * 20; // 45-65% lightness
+  // Generate 6 unique card colors (completely random distribution)
+  const cardColors = Array.from({ length: 6 }, () => {
+    const h = Math.floor(Math.random() * 360); // Fully random hues
+    const s = 50 + Math.random() * 45; // 50-95% saturation
+    const l = 38 + Math.random() * 27; // 38-65% lightness
     const { r, g, b } = hslToRgb(h, s, l);
     return rgbToHex(r, g, b);
   });

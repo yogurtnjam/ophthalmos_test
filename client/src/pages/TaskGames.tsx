@@ -201,7 +201,7 @@ export default function TaskGames() {
   );
 }
 
-// Game 1: Tile Game (3+ rounds)
+// Game 1: Tile Game (3 rounds)
 function TileGame({
   isActive,
   onStart,
@@ -218,10 +218,11 @@ function TileGame({
   colorPool: string[];
 }) {
   const MIN_ROUNDS = 3;
-  const tiles = 25;
+  const tiles = 16; // 4x4 grid
   const [round, setRound] = useState(0);
   const [oddIndex, setOddIndex] = useState(Math.floor(Math.random() * tiles));
   const [baseColor, setBaseColor] = useState(colorPool[0]);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
 
   const generateNewRound = () => {
     // Use the randomized color pool for this phase
@@ -233,6 +234,7 @@ function TileGame({
   useEffect(() => {
     if (isActive) {
       setRound(0);
+      setCorrectAnswers(0);
       generateNewRound();
     }
   }, [isActive]);
@@ -247,12 +249,21 @@ function TileGame({
     onClick();
     const correct = index === oddIndex;
     
-    if (round + 1 >= MIN_ROUNDS) {
-      // Complete the game after minimum rounds
-      onComplete(correct);
+    // Track correct answers
+    const newCorrectCount = correct ? correctAnswers + 1 : correctAnswers;
+    setCorrectAnswers(newCorrectCount);
+    
+    // Increment round counter
+    const nextRound = round + 1;
+    setRound(nextRound);
+    
+    // Check if we've completed all rounds
+    if (nextRound >= MIN_ROUNDS) {
+      // Completed all 3 rounds - accuracy is based on all 3 rounds
+      const accuracy = newCorrectCount >= 2; // At least 2 out of 3 correct
+      onComplete(accuracy);
     } else {
-      // Generate new round
-      setRound(r => r + 1);
+      // Generate new round for next attempt
       generateNewRound();
     }
   };
@@ -272,7 +283,7 @@ function TileGame({
           <div style={{ marginBottom: 12, textAlign: 'center' }}>
             <span className="small">Round {round + 1} of {MIN_ROUNDS}</span>
           </div>
-          <div className="grid5">
+          <div className="grid4">
             {Array.from({ length: tiles }).map((_, i) => (
               <button
                 key={i}
@@ -454,6 +465,7 @@ function CardMatchingGame({
   const [selected, setSelected] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [isChecking, setIsChecking] = useState(false);
+  const [mistakes, setMistakes] = useState(0);
 
   // Generate and shuffle cards when game becomes active
   useEffect(() => {
@@ -463,6 +475,7 @@ function CardMatchingGame({
       setSelected([]);
       setMatched([]);
       setIsChecking(false);
+      setMistakes(0);
     }
   }, [isActive, cards.length, cardColors]);
 
@@ -497,7 +510,9 @@ function CardMatchingGame({
             const newMatched = [...prevMatched, first, second];
             // Check if all matched
             if (newMatched.length === cards.length) {
-              setTimeout(() => onComplete(true), 500);
+              // Perfect score if no mistakes, otherwise failed
+              const perfect = mistakes === 0;
+              setTimeout(() => onComplete(perfect), 500);
             }
             return newMatched;
           });
@@ -505,7 +520,8 @@ function CardMatchingGame({
           setIsChecking(false);
         }, 600);
       } else {
-        // No match - reset selected cards
+        // No match - increment mistakes and reset selected cards
+        setMistakes(m => m + 1);
         setTimeout(() => {
           setSelected([]);
           setIsChecking(false);

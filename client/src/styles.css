@@ -16,6 +16,6 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,sans-ser
 .btn.secondary{background:#e5e7eb;color:#111827}.btn.link{background:transparent;color:var(--primary);padding:0}
 .input,.select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb;background:#fff}
 .small{color:var(--muted);font-size:12px}.badge{padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:700}
-.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.tile{aspect-ratio:1/1;border-radius:12px;border:1px solid #e5e7eb}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:400px;margin:0 auto}.tile{aspect-ratio:1/1;border-radius:8px;border:1px solid #e5e7eb;max-height:90px}
 .flex{display:flex;align-items:center;gap:10px}.space{height:8px} h1,h2,h3{margin:8px 0 12px} h1{font-size:28px} h2{font-size:22px}
 label{font-size:14px;color:#334155}
