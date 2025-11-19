@@ -259,9 +259,10 @@ function TileGame({
     
     // Check if we've completed all rounds
     if (nextRound >= MIN_ROUNDS) {
-      // Completed all 3 rounds - accuracy is based on all 3 rounds
-      const accuracy = newCorrectCount >= 2; // At least 2 out of 3 correct
-      onComplete(accuracy);
+      // Completed all 3 rounds - calculate accuracy as ratio
+      const accuracyRatio = newCorrectCount / MIN_ROUNDS;
+      // Pass true if accuracy >= 50%, otherwise false
+      onComplete(accuracyRatio >= 0.5);
     } else {
       // Generate new round for next attempt
       generateNewRound();
@@ -282,6 +283,11 @@ function TileGame({
         <>
           <div style={{ marginBottom: 12, textAlign: 'center' }}>
             <span className="small">Round {round + 1} of {MIN_ROUNDS}</span>
+            {round > 0 && (
+              <span className="small" style={{ marginLeft: 16 }}>
+                Accuracy: {correctAnswers}/{round} ({Math.round((correctAnswers / round) * 100)}%)
+              </span>
+            )}
           </div>
           <div className="grid4">
             {Array.from({ length: tiles }).map((_, i) => (
