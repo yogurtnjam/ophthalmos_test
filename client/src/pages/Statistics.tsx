@@ -31,17 +31,23 @@ export default function Statistics() {
   const customStats = taskIds.map(id => ({ id, stats: getTaskStats(id, 'custom') }));
   const presetStats = taskIds.map(id => ({ id, stats: getTaskStats(id, state.selectedOSPreset) }));
 
-  // Calculate totals
+  // Calculate totals including average accuracy
   const customTotal = {
     time: customStats.reduce((sum, t) => sum + (t.stats?.avgTime || 0), 0),
     swipes: customStats.reduce((sum, t) => sum + (t.stats?.totalSwipes || 0), 0),
     clicks: customStats.reduce((sum, t) => sum + (t.stats?.totalClicks || 0), 0),
+    avgAccuracy: customStats.filter(t => t.stats).length > 0
+      ? customStats.reduce((sum, t) => sum + (t.stats?.accuracy || 0), 0) / customStats.filter(t => t.stats).length
+      : 0,
   };
 
   const presetTotal = {
     time: presetStats.reduce((sum, t) => sum + (t.stats?.avgTime || 0), 0),
     swipes: presetStats.reduce((sum, t) => sum + (t.stats?.totalSwipes || 0), 0),
     clicks: presetStats.reduce((sum, t) => sum + (t.stats?.totalClicks || 0), 0),
+    avgAccuracy: presetStats.filter(t => t.stats).length > 0
+      ? presetStats.reduce((sum, t) => sum + (t.stats?.accuracy || 0), 0) / presetStats.filter(t => t.stats).length
+      : 0,
   };
 
   const getTaskLabel = (id: string) => {
@@ -115,6 +121,9 @@ export default function Statistics() {
             <div className="small" data-testid="custom-total-clicks">
               Total Clicks: {customTotal.clicks}
             </div>
+            <div className="small" data-testid="custom-total-accuracy">
+              <strong>Average Accuracy: {customTotal.avgAccuracy.toFixed(0)}%</strong>
+            </div>
           </div>
         </div>
 
@@ -155,6 +164,9 @@ export default function Statistics() {
             </div>
             <div className="small" data-testid="preset-total-clicks">
               Total Clicks: {presetTotal.clicks}
+            </div>
+            <div className="small" data-testid="preset-total-accuracy">
+              <strong>Average Accuracy: {presetTotal.avgAccuracy.toFixed(0)}%</strong>
             </div>
           </div>
         </div>

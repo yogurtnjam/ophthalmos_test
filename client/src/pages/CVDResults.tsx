@@ -98,6 +98,31 @@ export default function CVDResults() {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
+  const getHueShiftExplanation = (baseHue: number, shift: number) => {
+    // Calculate target hue after shift
+    const targetHue = (baseHue + shift + 360) % 360;
+    
+    // Determine color name based on hue angle
+    const getColorName = (hue: number) => {
+      if (hue >= 345 || hue < 15) return 'Red';
+      if (hue >= 15 && hue < 45) return 'Orange';
+      if (hue >= 45 && hue < 75) return 'Yellow';
+      if (hue >= 75 && hue < 165) return 'Green';
+      if (hue >= 165 && hue < 255) return 'Cyan/Blue';
+      if (hue >= 255 && hue < 285) return 'Blue';
+      if (hue >= 285 && hue < 315) return 'Purple';
+      return 'Magenta';
+    };
+    
+    const sourceName = getColorName(baseHue);
+    const targetName = getColorName(targetHue);
+    
+    if (shift === 0) return 'No shift';
+    return shift > 0 
+      ? `→ towards ${targetName}` 
+      : `→ towards ${targetName}`;
+  };
+
   return (
     <div className="min-h-screen p-4 bg-background">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -211,22 +236,70 @@ export default function CVDResults() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Red</div>
+                  <div className="text-xs text-muted-foreground">Red (0°)</div>
                   <div className="text-lg font-mono" data-testid="text-hue-red">
                     {advancedFilterParams.hueShift.red > 0 ? '+' : ''}{advancedFilterParams.hueShift.red}°
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    {getHueShiftExplanation(0, advancedFilterParams.hueShift.red)}
+                  </div>
                 </div>
                 <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Green</div>
+                  <div className="text-xs text-muted-foreground">Green (120°)</div>
                   <div className="text-lg font-mono" data-testid="text-hue-green">
                     {advancedFilterParams.hueShift.green > 0 ? '+' : ''}{advancedFilterParams.hueShift.green}°
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    {getHueShiftExplanation(120, advancedFilterParams.hueShift.green)}
+                  </div>
                 </div>
                 <div className="space-y-1 p-3 rounded bg-muted/50">
-                  <div className="text-xs text-muted-foreground">Blue</div>
+                  <div className="text-xs text-muted-foreground">Blue (240°)</div>
                   <div className="text-lg font-mono" data-testid="text-hue-blue">
                     {advancedFilterParams.hueShift.blue > 0 ? '+' : ''}{advancedFilterParams.hueShift.blue}°
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    {getHueShiftExplanation(240, advancedFilterParams.hueShift.blue)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Color Spectrum Visualization */}
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground text-center">
+                  Color Spectrum (Hue Wheel 0° - 360°)
+                </div>
+                <div className="relative h-12 rounded-lg overflow-hidden" style={{
+                  background: 'linear-gradient(to right, ' +
+                    'hsl(0, 100%, 50%) 0%, ' +      // Red
+                    'hsl(30, 100%, 50%) 8.33%, ' +  // Orange
+                    'hsl(60, 100%, 50%) 16.67%, ' + // Yellow
+                    'hsl(90, 100%, 50%) 25%, ' +    // Yellow-Green
+                    'hsl(120, 100%, 50%) 33.33%, ' +// Green
+                    'hsl(150, 100%, 50%) 41.67%, ' +// Green-Cyan
+                    'hsl(180, 100%, 50%) 50%, ' +   // Cyan
+                    'hsl(210, 100%, 50%) 58.33%, ' +// Cyan-Blue
+                    'hsl(240, 100%, 50%) 66.67%, ' +// Blue
+                    'hsl(270, 100%, 50%) 75%, ' +   // Blue-Purple
+                    'hsl(300, 100%, 50%) 83.33%, ' +// Magenta
+                    'hsl(330, 100%, 50%) 91.67%, ' +// Magenta-Red
+                    'hsl(360, 100%, 50%) 100%' +    // Red
+                  ')'
+                }}>
+                  {/* Markers for primary colors */}
+                  <div className="absolute top-0 left-0 w-full h-full flex justify-between items-center px-2 text-xs font-mono text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                    <span>0° Red</span>
+                    <span>120° Green</span>
+                    <span>240° Blue</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-6 gap-1 text-xs text-center text-muted-foreground">
+                  <div>30° Orange</div>
+                  <div>60° Yellow</div>
+                  <div>150° Cyan</div>
+                  <div>180° Cyan</div>
+                  <div>270° Purple</div>
+                  <div>300° Magenta</div>
                 </div>
               </div>
             </div>

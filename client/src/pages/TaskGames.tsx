@@ -225,8 +225,13 @@ function TileGame({
   const [correctAnswers, setCorrectAnswers] = useState(0);
 
   const generateNewRound = () => {
-    // Use the randomized color pool for this phase
-    setBaseColor(colorPool[Math.floor(Math.random() * colorPool.length)]);
+    // Generate a completely new random color for each round
+    const randomHue = Math.floor(Math.random() * 360);
+    const randomSat = 60 + Math.random() * 30; // 60-90%
+    const randomLight = 40 + Math.random() * 20; // 40-60%
+    const { r, g, b } = hslToRgb(randomHue, randomSat, randomLight);
+    const newColor = rgbToHex(r, g, b);
+    setBaseColor(newColor);
     setOddIndex(Math.floor(Math.random() * tiles));
   };
 
