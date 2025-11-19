@@ -102,25 +102,24 @@ export default function CVDResults() {
     // Calculate target hue after shift
     const targetHue = (baseHue + shift + 360) % 360;
     
-    // Determine color name based on hue angle
+    // Determine color name based on hue angle (non-overlapping ranges)
     const getColorName = (hue: number) => {
       if (hue >= 345 || hue < 15) return 'Red';
       if (hue >= 15 && hue < 45) return 'Orange';
       if (hue >= 45 && hue < 75) return 'Yellow';
-      if (hue >= 75 && hue < 165) return 'Green';
-      if (hue >= 165 && hue < 255) return 'Cyan/Blue';
-      if (hue >= 255 && hue < 285) return 'Blue';
-      if (hue >= 285 && hue < 315) return 'Purple';
-      return 'Magenta';
+      if (hue >= 75 && hue < 155) return 'Green';
+      if (hue >= 155 && hue < 195) return 'Cyan';
+      if (hue >= 195 && hue < 255) return 'Blue';
+      if (hue >= 255 && hue < 285) return 'Purple';
+      if (hue >= 285 && hue < 315) return 'Magenta';
+      return 'Pink';
     };
     
     const sourceName = getColorName(baseHue);
     const targetName = getColorName(targetHue);
     
-    if (shift === 0) return 'No shift';
-    return shift > 0 
-      ? `→ towards ${targetName}` 
-      : `→ towards ${targetName}`;
+    if (shift === 0) return `${sourceName} (no shift)`;
+    return `${sourceName} → towards ${targetName}`;
   };
 
   return (
