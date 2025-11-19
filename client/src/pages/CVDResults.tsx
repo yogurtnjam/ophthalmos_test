@@ -1,12 +1,12 @@
 import { useLocation } from 'wouter';
-import { useApp } from '../context/AppContext';
+import { useApp, generatePhaseColors } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Eye } from 'lucide-react';
 
 export default function CVDResults() {
-  const { state, nextStep } = useApp();
+  const { state, nextStep, setState } = useApp();
   const [, setLocation] = useLocation();
   const { coneTestResult, advancedFilterParams } = state;
 
@@ -29,6 +29,11 @@ export default function CVDResults() {
   }
 
   const handleContinue = () => {
+    // Regenerate custom phase colors when starting custom tasks
+    setState(s => ({
+      ...s,
+      customPhaseColors: generatePhaseColors(),
+    }));
     nextStep();
     setLocation('/tasks');
   };

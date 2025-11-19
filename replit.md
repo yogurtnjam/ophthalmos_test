@@ -122,7 +122,73 @@ Preferred communication style: Simple, everyday language.
 - Integrated into ConeTest results calculation for more accurate threshold estimation
 - Replaces simple averaging with psychometric analysis (geometric mean between highest incorrect and lowest correct levels)
 
-## Recent Updates (November 19, 2025)
+## Recent Updates (November 19, 2025 - Part 2)
+
+**Randomized Color System for Filter Verification:**
+
+**Problem:** Users couldn't easily verify if filters were actually working, as both custom and OS preset phases used the same base colors.
+
+**Solution:** Implemented phase-specific color randomization - custom phase and OS preset phase now use completely different randomized colors.
+
+**Implementation (`client/src/context/AppContext.tsx`):**
+- New `PhaseColors` interface defines color sets for each phase:
+  - `tileColors`: Array of 6 random colors for tile game
+  - `colorMatchTarget`: Single target color for color matcher
+  - `cardColors`: Array of 6 unique card colors
+- `generatePhaseColors()` function creates randomized color palettes:
+  - Tile colors: Random hues (0-360°), 60-90% saturation, 40-60% lightness
+  - Color match target: Random hue, 75% saturation, 55% lightness
+  - Card colors: Well-separated hues (60° apart + randomness), 65-90% saturation, 45-65% lightness
+- State fields added:
+  - `customPhaseColors`: Generated when starting custom tasks
+  - `presetPhaseColors`: Generated when switching to OS preset tasks
+- Color regeneration triggers:
+  - Custom phase: When clicking "Continue to Task Comparison" in CVDResults
+  - OS preset phase: When clicking "Start OS Preset Tasks" in TaskGames
+
+**Game Updates:**
+- All three games now accept phase-specific colors as props
+- `TileGame`: Uses `colorPool` from phase colors
+- `ColorScrollMatcher`: Uses `targetColor` from phase colors
+- `CardMatchingGame`: Uses `cardColors` from phase colors
+- Removed hardcoded `CARD_COLORS` constant
+
+**How to Verify Filters Are Working:**
+
+1. **Visual Comparison Method:**
+   - Complete questionnaire and cone test
+   - Start custom phase tasks - note the colors (e.g., card game might show reds, greens, blues)
+   - Complete all 3 custom games
+   - Start OS preset tasks - **the colors will be completely different!** (e.g., purples, oranges, teals)
+   - This proves both filter systems are transforming different base colors
+
+2. **Statistics Page Verification:**
+   - Navigate to `/statistics` after completing both phases
+   - Check "Custom Adaptive Filter" column - should show data for all 3 games
+   - Check OS preset column (e.g., "Deuteranopia") - should show different data
+   - Both columns should have non-zero totals (time, swipes, clicks)
+   - Confirms both filter types are being saved correctly
+
+3. **Browser Console Verification:**
+   - Open browser console (F12)
+   - Look for `[TaskGames] Saving task performance:` logs
+   - Custom phase tasks will show `filterType: "custom"`
+   - OS preset phase tasks will show `filterType: "protanopia"` (or deuteranopia/tritanopia/grayscale)
+   - Confirms filter mode is correctly applied during task execution
+
+4. **API Verification:**
+   - GET `/api/sessions/<session-id>` after completing both phases
+   - Check `taskPerformances` array should contain 6 entries:
+     - 3 with `filterType: "custom"`
+     - 3 with `filterType: "<selected-preset>"` (e.g., "deuteranopia")
+   - Confirms backend is correctly persisting filter data
+
+**Expected Behavior:**
+- Custom phase: Adaptive filter applies hue shifts, saturation boost, luminance gain to randomized Set A colors
+- OS preset phase: iOS matrix transformations apply to completely different randomized Set B colors
+- Different base colors + different filter algorithms = clear visual proof both systems work independently
+
+## Recent Updates (November 19, 2025 - Part 1)
 
 **Advanced Colorblind Filter Implementation:**
 Replaced simple RGB hue rotation system with research-grade adaptive filter based on cone test results.

@@ -2,6 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useState, ReactNode } fr
 import { Questionnaire, ConeTestResult, RGBAdjustment, AdvancedFilterParams, TaskPerformance, OSPresetFilter } from '../../../shared/schema';
 import { apiRequest } from '../lib/queryClient';
 import { createFilterFromConeTest } from '../lib/advancedFilter';
+import { hslToRgb, rgbToHex } from '../utils/color';
+
+interface PhaseColors {
+  tileColors: string[]; // Pool of colors for tile game
+  colorMatchTarget: string; // Target color for color matcher
+  cardColors: string[]; // Colors for card matching (6 unique colors)
+}
 
 interface AppState {
   // Current session ID
@@ -31,6 +38,10 @@ interface AppState {
   // Has completed custom filter tasks
   hasCompletedCustomTasks: boolean;
   
+  // Phase-specific randomized colors (different for custom vs preset)
+  customPhaseColors: PhaseColors;
+  presetPhaseColors: PhaseColors;
+  
   // Navigation state
   currentStep: number; // 0: questionnaire, 1: cone test, 2: adjustment, 3: tasks-custom, 4: tasks-preset, 5: stats
 }
@@ -50,6 +61,34 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+// Generate random colors for a phase (exported for use in components)
+export function generatePhaseColors(): PhaseColors {
+  // Generate 6 random tile colors (diverse hues)
+  const tileColors = Array.from({ length: 6 }, () => {
+    const h = Math.floor(Math.random() * 360);
+    const s = 60 + Math.random() * 30; // 60-90% saturation
+    const l = 40 + Math.random() * 20; // 40-60% lightness
+    const { r, g, b } = hslToRgb(h, s, l);
+    return rgbToHex(r, g, b);
+  });
+
+  // Generate random target color for color matcher
+  const targetHue = Math.floor(Math.random() * 360);
+  const { r: tr, g: tg, b: tb } = hslToRgb(targetHue, 75, 55);
+  const colorMatchTarget = rgbToHex(tr, tg, tb);
+
+  // Generate 6 unique card colors (well-separated hues)
+  const cardColors = Array.from({ length: 6 }, (_, i) => {
+    const h = (i * 60 + Math.random() * 40) % 360; // Spread across color wheel
+    const s = 65 + Math.random() * 25; // 65-90% saturation
+    const l = 45 + Math.random() * 20; // 45-65% lightness
+    const { r, g, b } = hslToRgb(h, s, l);
+    return rgbToHex(r, g, b);
+  });
+
+  return { tileColors, colorMatchTarget, cardColors };
+}
+
 const defaultState: AppState = {
   sessionId: null,
   questionnaire: null,
@@ -64,6 +103,8 @@ const defaultState: AppState = {
   selectedOSPreset: 'protanopia',
   currentFilterMode: 'custom',
   hasCompletedCustomTasks: false,
+  customPhaseColors: generatePhaseColors(),
+  presetPhaseColors: generatePhaseColors(),
   currentStep: 0,
 };
 
@@ -183,7 +224,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const setFilterMode = (mode: 'custom' | OSPresetFilter) => {
-    setState(s => ({ ...s, currentFilterMode: mode }));
+    setState(s => {
+      // Regenerate colors when switching to OS preset phase
+      if (mode !== 'custom' && s.currentFilterMode === 'custom') {
+        return {
+          ...s,
+          currentFilterMode: mode,
+          presetPhaseColors: generatePhaseColors(), // Fresh colors for preset phase
+        };
+      }
+      return { ...s, currentFilterMode: mode };
+    });
   };
 
   const nextStep = () => {

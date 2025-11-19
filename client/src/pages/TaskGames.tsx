@@ -8,9 +8,12 @@ import { TaskPerformance } from '../../../shared/schema';
 type GameState = 'tile-game' | 'color-match' | 'card-match' | 'complete';
 
 export default function TaskGames() {
-  const { state, setState, addTaskPerformance } = useApp();
+  const { state, setState, addTaskPerformance, setFilterMode } = useApp();
   const [, setLocation] = useLocation();
-  const { advancedFilterParams, selectedOSPreset, currentFilterMode } = state;
+  const { advancedFilterParams, selectedOSPreset, currentFilterMode, customPhaseColors, presetPhaseColors } = state;
+  
+  // Get colors for current phase
+  const phaseColors = currentFilterMode === 'custom' ? customPhaseColors : presetPhaseColors;
 
   const [currentGame, setCurrentGame] = useState<GameState>('tile-game');
   const [isGameActive, setIsGameActive] = useState(false);
@@ -88,9 +91,10 @@ export default function TaskGames() {
       setIsTransitioning(true);
       setState(s => ({ 
         ...s, 
-        hasCompletedCustomTasks: true,
-        currentFilterMode: s.selectedOSPreset 
+        hasCompletedCustomTasks: true
       }));
+      // Use setFilterMode to trigger preset color regeneration
+      setFilterMode(selectedOSPreset);
       // Reset game state for OS preset phase
       setTimeout(() => {
         setCurrentGame('tile-game');
@@ -165,6 +169,7 @@ export default function TaskGames() {
           onComplete={handleGameComplete}
           onClick={incrementClick}
           applyFilter={applyFilter}
+          colorPool={phaseColors.tileColors}
         />
       )}
 
@@ -177,6 +182,7 @@ export default function TaskGames() {
           onClick={incrementClick}
           onSwipe={incrementSwipe}
           applyFilter={applyFilter}
+          targetColor={phaseColors.colorMatchTarget}
         />
       )}
 
@@ -188,6 +194,7 @@ export default function TaskGames() {
           onComplete={handleGameComplete}
           onClick={incrementClick}
           applyFilter={applyFilter}
+          cardColors={phaseColors.cardColors}
         />
       )}
     </div>
@@ -201,22 +208,24 @@ function TileGame({
   onComplete,
   onClick,
   applyFilter,
+  colorPool,
 }: {
   isActive: boolean;
   onStart: () => void;
   onComplete: (correct: boolean) => void;
   onClick: () => void;
   applyFilter: (color: string) => string;
+  colorPool: string[];
 }) {
   const MIN_ROUNDS = 3;
   const tiles = 25;
   const [round, setRound] = useState(0);
   const [oddIndex, setOddIndex] = useState(Math.floor(Math.random() * tiles));
-  const [baseColor, setBaseColor] = useState('#3a7d44');
+  const [baseColor, setBaseColor] = useState(colorPool[0]);
 
   const generateNewRound = () => {
-    const colors = ['#3a7d44', '#1e88e5', '#e63946', '#f4a261', '#2a9d8f', '#8e44ad'];
-    setBaseColor(colors[Math.floor(Math.random() * colors.length)]);
+    // Use the randomized color pool for this phase
+    setBaseColor(colorPool[Math.floor(Math.random() * colorPool.length)]);
     setOddIndex(Math.floor(Math.random() * tiles));
   };
 
@@ -292,6 +301,7 @@ function ColorScrollMatcher({
   onClick,
   onSwipe,
   applyFilter,
+  targetColor,
 }: {
   isActive: boolean;
   onStart: () => void;
@@ -299,8 +309,8 @@ function ColorScrollMatcher({
   onClick: () => void;
   onSwipe: () => void;
   applyFilter: (color: string) => string;
+  targetColor: string;
 }) {
-  const targetColor = '#e63946';
   const numColors = 20;
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -424,21 +434,20 @@ function ColorScrollMatcher({
 }
 
 // Game 3: Card Matching
-// Card colors defined outside component to prevent re-renders
-const CARD_COLORS = ['#e63946', '#f4a261', '#2a9d8f', '#e76f51', '#264653', '#e9c46a'];
-
 function CardMatchingGame({
   isActive,
   onStart,
   onComplete,
   onClick,
   applyFilter,
+  cardColors,
 }: {
   isActive: boolean;
   onStart: () => void;
   onComplete: (correct: boolean) => void;
   onClick: () => void;
   applyFilter: (color: string) => string;
+  cardColors: string[];
 }) {
   const [cards, setCards] = useState<string[]>([]);
 
@@ -449,13 +458,13 @@ function CardMatchingGame({
   // Generate and shuffle cards when game becomes active
   useEffect(() => {
     if (isActive && cards.length === 0) {
-      const pairs = [...CARD_COLORS, ...CARD_COLORS];
+      const pairs = [...cardColors, ...cardColors];
       setCards(pairs.sort(() => Math.random() - 0.5));
       setSelected([]);
       setMatched([]);
       setIsChecking(false);
     }
-  }, [isActive, cards.length]);
+  }, [isActive, cards.length, cardColors]);
 
   // Reset cards when game becomes inactive
   useEffect(() => {
