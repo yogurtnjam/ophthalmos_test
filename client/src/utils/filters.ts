@@ -237,3 +237,112 @@ export function getRecommendedOSPreset(detectedType: string): OSPresetFilter {
     default: return 'grayscale';
   }
 }
+
+/**
+ * Cone test scores for each CVD axis
+ */
+export interface ConeTestScores {
+  protan: number;
+  deutan: number;
+  tritan: number;
+}
+
+/**
+ * Recommended colorblind filter configuration
+ */
+export interface RecommendedFilter {
+  type: 'protan' | 'deutan' | 'tritan';
+  severity: number; // 0–1 normalized severity
+}
+
+/**
+ * Determines the recommended colorblind filter for a user based on 
+ * self-reported type and/or cone test scores.
+ * 
+ * @param userType - User-reported CVD type (optional). If provided, takes precedence.
+ * @param coneTestScores - Numeric scores for each CVD axis (protan, deutan, tritan).
+ *                        Higher scores indicate greater deficiency.
+ * 
+ * @returns Recommended filter configuration with type and severity (0–1)
+ * 
+ * @example
+ * // User reports deuteranopia, scores confirm it
+ * const filter = getRecommendedFilter('deutan', { protan: 10, deutan: 35, tritan: 8 });
+ * // Returns: { type: 'deutan', severity: 0.875 }
+ * 
+ * @example
+ * // No user type provided, pick highest score
+ * const filter = getRecommendedFilter(undefined, { protan: 28, deutan: 12, tritan: 5 });
+ * // Returns: { type: 'protan', severity: 0.7 }
+ */
+export function getRecommendedFilter(
+  userType: 'protan' | 'deutan' | 'tritan' | undefined,
+  coneTestScores: ConeTestScores
+): RecommendedFilter {
+  // Validate and normalize cone test scores (handle missing/invalid inputs)
+  const scores = {
+    protan: Math.max(0, Math.min(40, coneTestScores?.protan ?? 0)),
+    deutan: Math.max(0, Math.min(40, coneTestScores?.deutan ?? 0)),
+    tritan: Math.max(0, Math.min(40, coneTestScores?.tritan ?? 0)),
+  };
+
+  // Determine primary CVD type
+  let primaryType: 'protan' | 'deutan' | 'tritan';
+
+  if (userType) {
+    // Rule 1: If userType is provided, use it as the primary type
+    primaryType = userType;
+  } else {
+    // Rule 2: If userType is missing, pick the type with the highest score
+    const maxScore = Math.max(scores.protan, scores.deutan, scores.tritan);
+    
+    if (scores.protan === maxScore) {
+      primaryType = 'protan';
+    } else if (scores.deutan === maxScore) {
+      primaryType = 'deutan';
+    } else {
+      primaryType = 'tritan';
+    }
+  }
+
+  // Calculate base severity for the primary type (normalize 0-40 scale to 0-1)
+  let severity = scores[primaryType] / 40;
+
+  // Rule 3: Handle blending when scores are close across multiple axes
+  // If scores are within 0.1 normalized difference (4 points on 0-40 scale),
+  // allow minor contributions from other axes to increase overall severity
+  const CLOSE_THRESHOLD = 4; // Points difference considered "close"
+  const primaryScore = scores[primaryType];
+  
+  // Check if other axes have close scores
+  const otherAxes = (['protan', 'deutan', 'tritan'] as const).filter(
+    axis => axis !== primaryType
+  );
+  
+  let blendedContribution = 0;
+  let closeAxesCount = 0;
+  
+  for (const axis of otherAxes) {
+    const diff = Math.abs(primaryScore - scores[axis]);
+    if (diff < CLOSE_THRESHOLD) {
+      // This axis is close to primary - add a weighted contribution
+      // Weight decreases as difference increases
+      const weight = 1 - (diff / CLOSE_THRESHOLD);
+      blendedContribution += (scores[axis] / 40) * weight * 0.15; // Max 15% contribution per axis
+      closeAxesCount++;
+    }
+  }
+  
+  // Add blended contributions to severity (capped at 1.0)
+  if (closeAxesCount > 0) {
+    severity = Math.min(1.0, severity + blendedContribution);
+  }
+
+  // Ensure severity stays within valid range
+  severity = Math.max(0, Math.min(1, severity));
+
+  return {
+    type: primaryType,
+    severity,
+  };
+}

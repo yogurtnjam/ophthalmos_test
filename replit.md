@@ -4,6 +4,22 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 19, 2025)
 
+**Advanced Filter Recommendation System:**
+- Added `getRecommendedFilter()` function to determine optimal colorblind filter based on user-reported type and/or cone test scores
+- Implements intelligent blending when scores are close across multiple CVD axes (< 4 point difference on 0-40 scale)
+- Returns normalized severity (0-1) with weighted contributions from secondary axes when applicable
+- Handles all edge cases: missing user type, undefined scores, close multi-axis scores
+- Fully typed with TypeScript interfaces: `ConeTestScores` and `RecommendedFilter`
+
+**Confusion Matrix Filter Implementation:**
+- Replaced simple hue shift approach with scientifically accurate Brettel et al., 1997 confusion matrices
+- Separate matrices for protanopia, deuteranopia, and tritanopia with severity-based scaling
+- Fixed severity normalization from 0-40 scale to 0-1 for consistent matrix intensity
+- Added tolerance-based achromatic guard (ε=0.01) to prevent grayscale color shifts
+- RGB clamping after matrix transformation prevents invalid color values
+- Safe HSL conversion with division-by-zero guards for grayscale inputs
+- CVD Results page updated with confusion axis explanations and matrix intensity visualization
+
 **Task Accuracy System Overhaul:**
 - Extended TaskPerformance schema with optional `accuracy` field (0-1 ratio) for precise performance measurement
 - Updated all three task games (Tile Matching, Color Scroll, Card Matching) to pass structured `{correct, accuracy}` objects to onComplete
