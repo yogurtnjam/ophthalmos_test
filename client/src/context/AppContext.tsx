@@ -39,6 +39,7 @@ interface AppContextType {
   updateRGBAdjustment: (adjustment: RGBAdjustment) => void;
   addTaskPerformance: (performance: TaskPerformance) => void;
   setSelectedOSPreset: (preset: OSPresetFilter) => void;
+  setFilterMode: (mode: 'custom' | OSPresetFilter) => void;
   nextStep: () => void;
   resetSession: () => void;
 }
@@ -170,6 +171,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(s => ({ ...s, selectedOSPreset: preset }));
   };
 
+  const setFilterMode = (mode: 'custom' | OSPresetFilter) => {
+    setState(s => ({ ...s, currentFilterMode: mode }));
+  };
+
   const nextStep = () => {
     setState(s => ({ ...s, currentStep: s.currentStep + 1 }));
   };
@@ -188,6 +193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateRGBAdjustment,
       addTaskPerformance,
       setSelectedOSPreset,
+      setFilterMode,
       nextStep,
       resetSession,
     }),
