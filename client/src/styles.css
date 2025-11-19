@@ -240,3 +240,10 @@ label {
   display: block;
   margin-bottom: 6px;
 }
+
+.game-container {
+  background: linear-gradient(to bottom, rgba(13, 148, 136, 0.02), rgba(13, 148, 136, 0.05));
+  border-radius: 16px;
+  padding: 40px 28px;
+  border: 1px solid rgba(13, 148, 136, 0.1);
+}

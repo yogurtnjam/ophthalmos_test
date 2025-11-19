@@ -154,64 +154,68 @@ export default function TaskGames() {
   }
 
   return (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2>Task Games</h2>
-        <div className="badge" data-testid="badge-filter-mode">
-          Filter: {currentFilterMode}
+    <div className="container">
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ margin: 0 }}>Task Games</h2>
+          <div className="badge" data-testid="badge-filter-mode">
+            Filter: {currentFilterMode}
+          </div>
+        </div>
+
+        {isGameActive && (
+          <div className="flex" style={{ marginBottom: 24, padding: '12px 16px', background: 'rgba(13, 148, 136, 0.05)', borderRadius: 10, border: '1px solid rgba(13, 148, 136, 0.15)' }}>
+            <div className="badge" data-testid="badge-time">
+              Time: {((Date.now() - startTime) / 1000).toFixed(1)}s
+            </div>
+            <div className="badge" data-testid="badge-clicks">
+              Clicks: {clicks}
+            </div>
+            <div className="badge" data-testid="badge-swipes">
+              Swipes: {swipes}
+            </div>
+          </div>
+        )}
+
+        <div className="game-container">
+          {currentGame === 'tile-game' && (
+            <TileGame
+              key={`tile-${currentFilterMode}`}
+              isActive={isGameActive}
+              onStart={handleGameStart}
+              onComplete={handleGameComplete}
+              onClick={incrementClick}
+              applyFilter={applyFilter}
+              colorPool={phaseColors.tileColors}
+            />
+          )}
+
+          {currentGame === 'color-match' && (
+            <ColorScrollMatcher
+              key={`color-${currentFilterMode}`}
+              isActive={isGameActive}
+              onStart={handleGameStart}
+              onComplete={handleGameComplete}
+              onClick={incrementClick}
+              onSwipe={incrementSwipe}
+              applyFilter={applyFilter}
+              targetColor={phaseColors.colorMatchTarget}
+            />
+          )}
+
+          {currentGame === 'card-match' && (
+            <CardMatchingGame
+              key={`card-${currentFilterMode}`}
+              isActive={isGameActive}
+              onStart={handleGameStart}
+              onComplete={handleGameComplete}
+              onClick={incrementClick}
+              applyFilter={applyFilter}
+              cardColors={phaseColors.cardColors}
+            />
+          )}
         </div>
       </div>
-
-      {isGameActive && (
-        <div className="flex" style={{ marginBottom: 16 }}>
-          <div className="badge" data-testid="badge-time">
-            Time: {((Date.now() - startTime) / 1000).toFixed(1)}s
-          </div>
-          <div className="badge" data-testid="badge-clicks">
-            Clicks: {clicks}
-          </div>
-          <div className="badge" data-testid="badge-swipes">
-            Swipes: {swipes}
-          </div>
-        </div>
-      )}
-
-      {currentGame === 'tile-game' && (
-        <TileGame
-          key={`tile-${currentFilterMode}`}
-          isActive={isGameActive}
-          onStart={handleGameStart}
-          onComplete={handleGameComplete}
-          onClick={incrementClick}
-          applyFilter={applyFilter}
-          colorPool={phaseColors.tileColors}
-        />
-      )}
-
-      {currentGame === 'color-match' && (
-        <ColorScrollMatcher
-          key={`color-${currentFilterMode}`}
-          isActive={isGameActive}
-          onStart={handleGameStart}
-          onComplete={handleGameComplete}
-          onClick={incrementClick}
-          onSwipe={incrementSwipe}
-          applyFilter={applyFilter}
-          targetColor={phaseColors.colorMatchTarget}
-        />
-      )}
-
-      {currentGame === 'card-match' && (
-        <CardMatchingGame
-          key={`card-${currentFilterMode}`}
-          isActive={isGameActive}
-          onStart={handleGameStart}
-          onComplete={handleGameComplete}
-          onClick={incrementClick}
-          applyFilter={applyFilter}
-          cardColors={phaseColors.cardColors}
-        />
-      )}
     </div>
   );
 }
@@ -299,18 +303,23 @@ function TileGame({
 
   return (
     <div>
-      <h3>Game 1: Find the Different Tile</h3>
-      <p className="small">Click on the tile that has a slightly different color. ({MIN_ROUNDS} rounds)</p>
-      <div className="space"></div>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h3 style={{ marginBottom: 12, fontSize: 22, fontWeight: 700 }}>Game 1: Find the Different Tile</h3>
+        <p className="small" style={{ fontSize: 14, color: '#64748b' }}>
+          Click on the tile that has a slightly different color. ({MIN_ROUNDS} rounds)
+        </p>
+      </div>
 
       {!isActive ? (
-        <button 
-          className="btn-start-game" 
-          onClick={onStart} 
-          data-testid="button-start-tile-game"
-        >
-          Start Game 1
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+          <button 
+            className="btn-start-game" 
+            onClick={onStart} 
+            data-testid="button-start-tile-game"
+          >
+            Start Game 1
+          </button>
+        </div>
       ) : (
         <>
           <div style={{ marginBottom: 12, textAlign: 'center' }}>
@@ -412,30 +421,37 @@ function ColorScrollMatcher({
 
   return (
     <div>
-      <h3>Game 2: Color Match Scroller</h3>
-      <p className="small">Find and click the color that matches the target below.</p>
-      <div className="space"></div>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h3 style={{ marginBottom: 12, fontSize: 22, fontWeight: 700 }}>Game 2: Color Match Scroller</h3>
+        <p className="small" style={{ fontSize: 14, color: '#64748b' }}>
+          Find and click the color that matches the target below.
+        </p>
+      </div>
 
       {!isActive ? (
         <>
-          <div
-            style={{
-              width: 80,
-              height: 80,
-              background: applyFilter(targetColor),
-              borderRadius: 12,
-              margin: '0 auto 16px',
-              border: '3px solid #333',
-            }}
-            data-testid="target-color"
-          />
-          <button 
-            className="btn-start-game" 
-            onClick={onStart} 
-            data-testid="button-start-color-match"
-          >
-            Start Game 2
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 16,
+                background: applyFilter(targetColor),
+                border: '3px solid #0d9488',
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.2)',
+              }}
+              data-testid="target-color"
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0 32px' }}>
+            <button 
+              className="btn-start-game" 
+              onClick={onStart} 
+              data-testid="button-start-color-match"
+            >
+              Start Game 2
+            </button>
+          </div>
         </>
       ) : (
         <>
@@ -598,18 +614,23 @@ function CardMatchingGame({
 
   return (
     <div>
-      <h3>Game 3: Card Matching</h3>
-      <p className="small">Click two cards to find matching color pairs. Matched cards will disappear.</p>
-      <div className="space"></div>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h3 style={{ marginBottom: 12, fontSize: 22, fontWeight: 700 }}>Game 3: Card Matching</h3>
+        <p className="small" style={{ fontSize: 14, color: '#64748b' }}>
+          Click two cards to find matching color pairs. Matched cards will disappear.
+        </p>
+      </div>
 
       {!isActive ? (
-        <button 
-          className="btn-start-game" 
-          onClick={onStart} 
-          data-testid="button-start-card-match"
-        >
-          Start Game 3
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+          <button 
+            className="btn-start-game" 
+            onClick={onStart} 
+            data-testid="button-start-card-match"
+          >
+            Start Game 3
+          </button>
+        </div>
       ) : (
         <>
           {totalAttempts > 0 && (
