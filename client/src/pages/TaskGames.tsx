@@ -516,27 +516,34 @@ function CardMatchingGame({
       
       if (cards[first] === cards[second]) {
         // Match found - increment correct matches and add to matched
-        setCorrectMatches(c => c + 1);
+        const totalCards = cards.length; // Capture cards.length in closure
         setTimeout(() => {
-          setMatched(prevMatched => {
-            const newMatched = [...prevMatched, first, second];
-            // Check if all matched
-            if (newMatched.length === cards.length) {
-              // Calculate accuracy as ratio of correct matches to total attempts
-              setTimeout(() => {
-                const accuracy = correctMatches + 1; // +1 for the current correct match
-                const attempts = totalAttempts + 1; // +1 for the current attempt
-                const accuracyRatio = accuracy / attempts;
-                // Pass true if accuracy >= 50%, otherwise false
-                onComplete(accuracyRatio >= 0.5);
-              }, 500);
-            }
-            return newMatched;
+          setCorrectMatches(prevCorrect => {
+            const newCorrect = prevCorrect + 1;
+            
+            setMatched(prevMatched => {
+              const newMatched = [...prevMatched, first, second];
+              // Check if all matched
+              if (newMatched.length === totalCards) {
+                // Calculate accuracy as ratio of correct matches to total attempts
+                setTimeout(() => {
+                  setTotalAttempts(prevAttempts => {
+                    const accuracyRatio = newCorrect / prevAttempts;
+                    // Pass true if accuracy >= 50%, otherwise false
+                    onComplete(accuracyRatio >= 0.5);
+                    return prevAttempts;
+                  });
+                }, 500);
+              }
+              return newMatched;
+            });
+            
+            return newCorrect;
           });
           setSelected([]);
           setIsChecking(false);
         }, 600);
-      } else {
+      } else{
         // No match - just reset selected cards (already counted in totalAttempts)
         setTimeout(() => {
           setSelected([]);
