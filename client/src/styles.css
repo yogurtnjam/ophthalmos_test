@@ -124,6 +124,32 @@ body {
   box-shadow: none;
 }
 
+.btn-start-game {
+  background: #ffffff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 16px 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-start-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.25);
+  background: #f8fffe;
+}
+
+.btn-start-game:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.15);
+}
+
 .input, .select {
   width: 100%;
   padding: 12px 16px;

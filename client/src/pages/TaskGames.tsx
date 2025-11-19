@@ -304,7 +304,11 @@ function TileGame({
       <div className="space"></div>
 
       {!isActive ? (
-        <button className="btn" onClick={onStart} data-testid="button-start-tile-game">
+        <button 
+          className="btn-start-game" 
+          onClick={onStart} 
+          data-testid="button-start-tile-game"
+        >
           Start Game 1
         </button>
       ) : (
@@ -425,7 +429,11 @@ function ColorScrollMatcher({
             }}
             data-testid="target-color"
           />
-          <button className="btn" onClick={onStart} data-testid="button-start-color-match">
+          <button 
+            className="btn-start-game" 
+            onClick={onStart} 
+            data-testid="button-start-color-match"
+          >
             Start Game 2
           </button>
         </>
@@ -595,7 +603,11 @@ function CardMatchingGame({
       <div className="space"></div>
 
       {!isActive ? (
-        <button className="btn" onClick={onStart} data-testid="button-start-card-match">
+        <button 
+          className="btn-start-game" 
+          onClick={onStart} 
+          data-testid="button-start-card-match"
+        >
           Start Game 3
         </button>
       ) : (
