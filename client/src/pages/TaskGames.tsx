@@ -36,6 +36,13 @@ export default function TaskGames() {
 
   // Apply filter to color based on current mode
   const applyFilter = (color: string): string => {
+    // For normal vision users, don't apply any filters
+    const isNormalVision = state.coneTestResult?.detectedType === 'normal';
+    
+    if (isNormalVision) {
+      return color; // No filter for normal vision
+    }
+    
     if (currentFilterMode === 'custom' && advancedFilterParams) {
       return applyAdvancedColorblindFilter(color, advancedFilterParams);
     } else if (currentFilterMode !== 'custom') {
@@ -52,8 +59,15 @@ export default function TaskGames() {
     setSwipes(0);
   };
 
-  const handleGameComplete = (correct: boolean) => {
+  const handleGameComplete = (result: boolean | { correct: boolean; accuracy: number }) => {
     const timeMs = Date.now() - startTime;
+    
+    // Support both boolean and object result formats
+    const correct = typeof result === 'boolean' ? result : result.correct;
+    const accuracy = typeof result === 'boolean' 
+      ? (result ? 1 : 0) 
+      : result.accuracy;
+    
     const performance: TaskPerformance = {
       taskId: currentGame,
       filterType: currentFilterMode,
@@ -61,9 +75,10 @@ export default function TaskGames() {
       swipes,
       clicks,
       correct,
+      accuracy,
       timestamp: new Date().toISOString(),
     };
-    console.log('[TaskGames] Saving task performance:', { taskId: currentGame, filterType: currentFilterMode, timeMs });
+    console.log('[TaskGames] Saving task performance:', { taskId: currentGame, filterType: currentFilterMode, timeMs, accuracy });
     addTaskPerformance(performance);
     setIsGameActive(false);
 
@@ -212,7 +227,7 @@ function TileGame({
 }: {
   isActive: boolean;
   onStart: () => void;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: boolean | { correct: boolean; accuracy: number }) => void;
   onClick: () => void;
   applyFilter: (color: string) => string;
   colorPool: string[];
@@ -332,7 +347,7 @@ function ColorScrollMatcher({
 }: {
   isActive: boolean;
   onStart: () => void;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: boolean | { correct: boolean; accuracy: number }) => void;
   onClick: () => void;
   onSwipe: () => void;
   applyFilter: (color: string) => string;
@@ -471,7 +486,7 @@ function CardMatchingGame({
 }: {
   isActive: boolean;
   onStart: () => void;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: boolean | { correct: boolean; accuracy: number }) => void;
   onClick: () => void;
   applyFilter: (color: string) => string;
   cardColors: string[];
@@ -539,8 +554,11 @@ function CardMatchingGame({
                 setTimeout(() => {
                   setTotalAttempts(prevAttempts => {
                     const accuracyRatio = newCorrect / prevAttempts;
-                    // Pass true if accuracy >= 50%, otherwise false
-                    onComplete(accuracyRatio >= 0.5);
+                    // Pass both correct status and actual accuracy ratio
+                    onComplete({ 
+                      correct: accuracyRatio >= 0.5, 
+                      accuracy: accuracyRatio 
+                    });
                     return prevAttempts;
                   });
                 }, 500);

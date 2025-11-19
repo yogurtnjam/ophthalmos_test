@@ -14,13 +14,20 @@ export default function Statistics() {
     const totalTime = tasks.reduce((sum, t) => sum + t.timeMs, 0);
     const totalSwipes = tasks.reduce((sum, t) => sum + t.swipes, 0);
     const totalClicks = tasks.reduce((sum, t) => sum + t.clicks, 0);
-    const correct = tasks.filter(t => t.correct).length;
+    
+    // Calculate accuracy using the accuracy field when available, falling back to boolean correct
+    const totalAccuracy = tasks.reduce((sum, t) => {
+      // Use accuracy field if present, otherwise use correct boolean (1 for true, 0 for false)
+      const taskAccuracy = t.accuracy !== undefined ? t.accuracy : (t.correct ? 1 : 0);
+      return sum + taskAccuracy;
+    }, 0);
+    const accuracy = (totalAccuracy / tasks.length) * 100;
 
     return {
       avgTime: totalTime / tasks.length,
       totalSwipes,
       totalClicks,
-      accuracy: (correct / tasks.length) * 100,
+      accuracy,
       count: tasks.length,
     };
   };

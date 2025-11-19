@@ -72,6 +72,7 @@ export const taskPerformanceSchema = z.object({
   swipes: z.number(),
   clicks: z.number(),
   correct: z.boolean(),
+  accuracy: z.number().min(0).max(1).optional(), // Actual accuracy ratio (0-1), e.g., 0.75 for 75%
   timestamp: z.string(),
 });
 
