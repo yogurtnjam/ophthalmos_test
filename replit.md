@@ -4,6 +4,15 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**Empty Questionnaire Input Fields:**
+- All form fields now start completely empty (no pre-filled values)
+- Name: Empty with placeholder "Enter your full name"
+- Age: Empty with placeholder "Enter your age"
+- CVD Type: Shows placeholder "Select an option"
+- Screen Time: Empty with placeholder "Enter hours per week"
+- All fields are required and validated before form submission
+- User must provide all information themselves
+
 **Participant Profile on Results Page:**
 - Added "Participant Profile" section at the top of the Statistics/Results page
 - Displays 5 key fields in a responsive grid:

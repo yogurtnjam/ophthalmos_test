@@ -12,11 +12,11 @@ import { Eye } from 'lucide-react';
 export default function Questionnaire() {
   const { updateQuestionnaire, nextStep } = useApp();
   const [, setLocation] = useLocation();
-  const [formData, setFormData] = useState<QuestionnaireType>({
+  const [formData, setFormData] = useState({
     name: '',
-    age: 25,
-    cvdType: 'unknown',
-    screenTimePerWeek: 40,
+    age: '',
+    cvdType: '',
+    screenTimePerWeek: '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof QuestionnaireType, string>>>({});
@@ -28,11 +28,17 @@ export default function Questionnaire() {
       newErrors.name = 'Name is required';
     }
 
-    if (formData.age < 1 || formData.age > 120) {
+    const age = parseInt(formData.age);
+    if (!formData.age || isNaN(age) || age < 1 || age > 120) {
       newErrors.age = 'Age must be between 1 and 120';
     }
 
-    if (formData.screenTimePerWeek < 0 || formData.screenTimePerWeek > 168) {
+    if (!formData.cvdType) {
+      newErrors.cvdType = 'Please select an option';
+    }
+
+    const screenTime = parseInt(formData.screenTimePerWeek);
+    if (!formData.screenTimePerWeek || isNaN(screenTime) || screenTime < 0 || screenTime > 168) {
       newErrors.screenTimePerWeek = 'Screen time must be between 0 and 168 hours per week';
     }
 
@@ -43,7 +49,13 @@ export default function Questionnaire() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      await updateQuestionnaire(formData);
+      const questionnaireData: QuestionnaireType = {
+        name: formData.name,
+        age: parseInt(formData.age),
+        cvdType: formData.cvdType as any,
+        screenTimePerWeek: parseInt(formData.screenTimePerWeek),
+      };
+      await updateQuestionnaire(questionnaireData);
       nextStep();
       setLocation('/cone-test');
     }
@@ -74,7 +86,8 @@ export default function Questionnaire() {
                 id="age"
                 type="number"
                 value={formData.age}
-                onChange={e => setFormData({ ...formData, age: parseInt(e.target.value) || 0 })}
+                onChange={e => setFormData({ ...formData, age: e.target.value })}
+                placeholder="Enter your age"
                 min="1"
                 max="120"
                 data-testid="input-age"
@@ -85,8 +98,8 @@ export default function Questionnaire() {
             <div className="space-y-2">
               <Label htmlFor="cvdType">Do you have color vision deficiency?</Label>
               <Select
-                value={formData.cvdType}
-                onValueChange={(value) => setFormData({ ...formData, cvdType: value as any })}
+                value={formData.cvdType || undefined}
+                onValueChange={(value) => setFormData({ ...formData, cvdType: value })}
               >
                 <SelectTrigger id="cvdType" data-testid="select-cvd-type">
                   <SelectValue placeholder="Select an option" />
@@ -99,6 +112,7 @@ export default function Questionnaire() {
                   <SelectItem value="tritanopia">Yes, Tritanopia (blue-yellow deficiency)</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.cvdType && <p className="text-sm text-destructive">{errors.cvdType}</p>}
             </div>
 
             <div className="space-y-2">
@@ -107,7 +121,8 @@ export default function Questionnaire() {
                 id="screenTime"
                 type="number"
                 value={formData.screenTimePerWeek}
-                onChange={e => setFormData({ ...formData, screenTimePerWeek: parseInt(e.target.value) || 0 })}
+                onChange={e => setFormData({ ...formData, screenTimePerWeek: e.target.value })}
+                placeholder="Enter hours per week"
                 min="0"
                 max="168"
                 data-testid="input-screen-time"
