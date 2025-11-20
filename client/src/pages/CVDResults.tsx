@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Eye } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function CVDResults() {
   const { state, nextStep, setState } = useApp();
@@ -49,31 +50,33 @@ export default function CVDResults() {
   const detectedType = coneTestResult.detectedType;
   const hasMismatch = indicatedType && indicatedType !== detectedType && indicatedType !== 'normal';
 
-  // If this is the FIRST test and there's a mismatch, redirect to mismatch page
-  if (hasMismatch && !retestRequested) {
-    setLocation('/cvd-mismatch');
-    return null;
-  }
+  // Handle mismatch detection and state updates in useEffect
+  useEffect(() => {
+    // If this is the FIRST test and there's a mismatch, redirect to mismatch page
+    if (hasMismatch && !retestRequested) {
+      setLocation('/cvd-mismatch');
+      return;
+    }
 
-  // If this is the SECOND test (retestRequested=true) and STILL mismatched,
-  // mark to use hybrid filter
-  if (hasMismatch && retestRequested && previousConeTestResult) {
-    // Set hybrid filter flag
-    setState(s => ({
-      ...s,
-      useHybridFilter: true,
-    }));
-  }
+    // If this is the SECOND test (retestRequested=true) and STILL mismatched,
+    // mark to use hybrid filter
+    if (hasMismatch && retestRequested && previousConeTestResult) {
+      setState(s => ({
+        ...s,
+        useHybridFilter: true,
+      }));
+    }
 
-  // If the retest now MATCHES (no mismatch), clear all mismatch flags
-  if (!hasMismatch && retestRequested) {
-    setState(s => ({
-      ...s,
-      useHybridFilter: false,
-      retestRequested: false,
-      previousConeTestResult: null,
-    }));
-  }
+    // If the retest now MATCHES (no mismatch), clear all mismatch flags
+    if (!hasMismatch && retestRequested) {
+      setState(s => ({
+        ...s,
+        useHybridFilter: false,
+        retestRequested: false,
+        previousConeTestResult: null,
+      }));
+    }
+  }, [hasMismatch, retestRequested, previousConeTestResult, setLocation, setState]);
 
   const handleContinue = () => {
     // Regenerate custom phase colors when starting custom tasks
