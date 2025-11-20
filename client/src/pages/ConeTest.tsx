@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Eye, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { thresholdFromFixedLevels } from '@/lib/staircaseThreshold';
-import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 type Direction = 'left' | 'up' | 'right' | 'down';
 type ConeType = 'L' | 'M' | 'S';
@@ -248,13 +247,10 @@ export default function ConeTest() {
 
   if (!isStarted) {
     return (
-      <AssessmentLayout
-        title="Cone Contrast Sensitivity Test"
-        description="Quick contrast detection test for Red, Green, and Blue/Violet"
-        icon={<Eye className="w-8 h-8 text-white" />}
-      >
-        <Card className="shadow-lg" data-testid="card-cone-test-intro">
-          <CardContent className="space-y-6 pt-6">
+      <div className="min-h-screen bg-white p-4">
+        <div className="max-w-2xl mx-auto">
+          <Card className="shadow-lg" data-testid="card-cone-test-intro">
+            <CardContent className="space-y-6 pt-6">
             <div className="space-y-3">
               <h3 className="font-semibold">How it works:</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -314,7 +310,8 @@ export default function ConeTest() {
             </div>
           </CardContent>
         </Card>
-      </AssessmentLayout>
+        </div>
+      </div>
     );
   }
 

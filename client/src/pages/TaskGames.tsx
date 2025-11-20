@@ -4,8 +4,6 @@ import { useApp } from '../context/AppContext';
 import { applyAdvancedColorblindFilter, applyOSPresetFilter, applyHybridFilter } from '../utils/filters';
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from '../utils/color';
 import { TaskPerformance } from '../../../shared/schema';
-import { AssessmentLayout } from '@/components/AssessmentLayout';
-import { Gamepad2 } from 'lucide-react';
 
 type GameState = 'tile-game' | 'color-match' | 'card-match' | 'complete';
 
@@ -187,13 +185,8 @@ export default function TaskGames() {
   }
 
   return (
-    <AssessmentLayout
-      title="Task Games"
-      description={`Current Filter: ${currentFilterMode === 'custom' ? 'Adaptive Custom' : selectedOSPreset}`}
-      icon={<Gamepad2 className="w-8 h-8 text-white" />}
-      maxWidth="5xl"
-    >
-      <div className="space-y-6">
+    <div className="min-h-screen bg-white p-4">
+      <div className="max-w-5xl mx-auto space-y-6">
 
         {isGameActive && (
           <div className="flex" style={{ marginBottom: 24, padding: '12px 16px', background: 'rgba(13, 148, 136, 0.05)', borderRadius: 10, border: '1px solid rgba(13, 148, 136, 0.15)' }}>
@@ -248,7 +241,7 @@ export default function TaskGames() {
           )}
         </div>
       </div>
-    </AssessmentLayout>
+    </div>
   );
 }
 

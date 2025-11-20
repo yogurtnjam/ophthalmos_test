@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye } from 'lucide-react';
-import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 export default function Questionnaire() {
   const { updateQuestionnaire, nextStep } = useApp();
@@ -51,13 +50,10 @@ export default function Questionnaire() {
   };
 
   return (
-    <AssessmentLayout
-      title="Welcome to OPHTHALMOS"
-      description="Please answer a few questions before we begin the Cone Contrast Sensitivity Test."
-      icon={<Eye className="w-8 h-8 text-white" />}
-    >
-      <Card className="shadow-lg">
-        <CardContent className="pt-6">
+    <div className="min-h-screen bg-white p-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="shadow-lg">
+          <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -133,6 +129,7 @@ export default function Questionnaire() {
           </form>
         </CardContent>
       </Card>
-    </AssessmentLayout>
+      </div>
+    </div>
   );
 }

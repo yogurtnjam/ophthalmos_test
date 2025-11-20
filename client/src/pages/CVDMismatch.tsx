@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 export default function CVDMismatch() {
   const { state, setState } = useApp();
@@ -64,13 +63,10 @@ export default function CVDMismatch() {
   };
 
   return (
-    <AssessmentLayout
-      title="CVD Type Mismatch Detected"
-      description="There is a discrepancy between your self-reported color vision deficiency type and what the cone contrast test detected."
-      icon={<AlertCircle className="w-8 h-8 text-white" />}
-    >
-      <Card className="shadow-lg" data-testid="card-mismatch">
-        <CardContent className="space-y-6 pt-6">
+    <div className="min-h-screen bg-white p-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="shadow-lg" data-testid="card-mismatch">
+          <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
               <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
@@ -109,6 +105,7 @@ export default function CVDMismatch() {
           </div>
         </CardContent>
       </Card>
-    </AssessmentLayout>
+      </div>
+    </div>
   );
 }

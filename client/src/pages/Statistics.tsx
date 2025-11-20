@@ -1,7 +1,5 @@
 import { useApp } from '../context/AppContext';
 import { getFilterDisplayName } from '../utils/filters';
-import { AssessmentLayout } from '@/components/AssessmentLayout';
-import { BarChart3 } from 'lucide-react';
 
 export default function Statistics() {
   const { state, resetSession } = useApp();
@@ -73,13 +71,9 @@ export default function Statistics() {
   };
 
   return (
-    <AssessmentLayout
-      title="Performance Statistics"
-      description={questionnaire ? `${questionnaire.name} · Age: ${questionnaire.age}` : 'Task Performance Summary'}
-      icon={<BarChart3 className="w-8 h-8 text-white" />}
-      maxWidth="4xl"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="min-h-screen bg-white p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Custom Adaptive Filter Stats */}
         <div className="card">
           <h2>Custom Adaptive Filter</h2>
@@ -221,6 +215,7 @@ export default function Statistics() {
           </button>
         </div>
       </div>
-    </AssessmentLayout>
+      </div>
+    </div>
   );
 }
