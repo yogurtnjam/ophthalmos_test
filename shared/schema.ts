@@ -86,6 +86,10 @@ export const sessionDataSchema = z.object({
   advancedFilterParams: advancedFilterParamsSchema.optional(),
   taskPerformances: z.array(taskPerformanceSchema),
   createdAt: z.string(),
+  // Mismatch tracking fields
+  previousConeTestResult: coneTestResultSchema.optional(), // First test result for comparison
+  retestRequested: z.boolean().optional(), // True if mismatch detected and retest requested
+  useHybridFilter: z.boolean().optional(), // True if using OS preset + CCT confusion axis adjustment
 });
 
 export type SessionData = z.infer<typeof sessionDataSchema>;

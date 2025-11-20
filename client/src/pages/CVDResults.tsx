@@ -8,7 +8,7 @@ import { ArrowRight, Eye } from 'lucide-react';
 export default function CVDResults() {
   const { state, nextStep, setState } = useApp();
   const [, setLocation] = useLocation();
-  const { coneTestResult, advancedFilterParams } = state;
+  const { coneTestResult, advancedFilterParams, questionnaire, retestRequested, previousConeTestResult } = state;
 
   if (!coneTestResult || !advancedFilterParams) {
     return (
@@ -26,6 +26,53 @@ export default function CVDResults() {
         </Card>
       </div>
     );
+  }
+
+  // Check for type mismatch between questionnaire and CCT
+  const getQuestionnaireType = () => {
+    if (!questionnaire) return null;
+    switch (questionnaire.cvdType) {
+      case 'protanopia':
+        return 'protan';
+      case 'deuteranopia':
+        return 'deutan';
+      case 'tritanopia':
+        return 'tritan';
+      case 'none':
+        return 'normal';
+      default:
+        return null;
+    }
+  };
+
+  const indicatedType = getQuestionnaireType();
+  const detectedType = coneTestResult.detectedType;
+  const hasMismatch = indicatedType && indicatedType !== detectedType && indicatedType !== 'normal';
+
+  // If this is the FIRST test and there's a mismatch, redirect to mismatch page
+  if (hasMismatch && !retestRequested) {
+    setLocation('/cvd-mismatch');
+    return null;
+  }
+
+  // If this is the SECOND test (retestRequested=true) and STILL mismatched,
+  // mark to use hybrid filter
+  if (hasMismatch && retestRequested && previousConeTestResult) {
+    // Set hybrid filter flag
+    setState(s => ({
+      ...s,
+      useHybridFilter: true,
+    }));
+  }
+
+  // If the retest now MATCHES (no mismatch), clear all mismatch flags
+  if (!hasMismatch && retestRequested) {
+    setState(s => ({
+      ...s,
+      useHybridFilter: false,
+      retestRequested: false,
+      previousConeTestResult: null,
+    }));
   }
 
   const handleContinue = () => {

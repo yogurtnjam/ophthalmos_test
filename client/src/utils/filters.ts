@@ -346,3 +346,38 @@ export function getRecommendedFilter(
     severity,
   };
 }
+
+/**
+ * Hybrid filter: OS preset base + CCT confusion axis adjustment
+ * Used when there's a mismatch between user-indicated type and CCT-detected type after retest.
+ * 
+ * @param colorHex - The color to filter
+ * @param indicatedType - User's self-reported CVD type ('protan', 'deutan', or 'tritan')
+ * @param cctScores - Cone contrast test scores for all three axes
+ * @param intensity - Filter intensity (0-1), defaults to 1
+ * @returns Filtered color hex string
+ */
+export function applyHybridFilter(
+  colorHex: string,
+  indicatedType: 'protan' | 'deutan' | 'tritan',
+  cctScores: ConeTestScores,
+  intensity = 1
+): string {
+  // Map indicated type to OS preset
+  const presetMap: Record<'protan' | 'deutan' | 'tritan', OSPresetFilter> = {
+    protan: 'protanopia',
+    deutan: 'deuteranopia',
+    tritan: 'tritanopia',
+  };
+  
+  const osPreset = presetMap[indicatedType];
+  
+  // Get the CCT severity for the indicated type's confusion axis
+  // Normalize from 0-40 scale to 0-1 scale
+  const cctSeverity = Math.min(1, (cctScores[indicatedType] ?? 0) / 40);
+  
+  // Apply OS preset filter with CCT-measured severity
+  // This uses the clinically-validated confusion matrix for the indicated type
+  // but scales its intensity based on what the CCT actually measured
+  return applyOSPresetFilter(colorHex, osPreset, cctSeverity * intensity);
+}

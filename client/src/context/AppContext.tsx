@@ -32,6 +32,11 @@ interface AppState {
   // Current selected OS preset for comparison
   selectedOSPreset: OSPresetFilter;
   
+  // Mismatch tracking fields
+  previousConeTestResult: ConeTestResult | null;
+  retestRequested: boolean;
+  useHybridFilter: boolean;
+  
   // Which filter mode is currently active (for task page)
   currentFilterMode: 'custom' | OSPresetFilter;
   
@@ -103,6 +108,9 @@ const defaultState: AppState = {
   },
   taskPerformances: [],
   selectedOSPreset: 'protanopia',
+  previousConeTestResult: null,
+  retestRequested: false,
+  useHybridFilter: false,
   currentFilterMode: 'custom',
   hasCompletedCustomTasks: false,
   customPhaseColors: generatePhaseColors(),

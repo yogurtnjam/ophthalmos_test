@@ -2,6 +2,24 @@
 
 OPHTHALMOS is a research application designed to evaluate personalized adaptive user interfaces for individuals with color vision deficiency (CVD). It assesses users' cone sensitivities, allows for customization of RGB hue adjustments, and compares the performance of custom adaptive filters against standard OS-level preset filters (protanopia, deuteranopia, tritanopia, grayscale) on visual tasks. The application collects quantitative metrics (time, accuracy, interactions) to measure the effectiveness of these color adaptation strategies. The business vision is to provide a robust platform for researching and developing advanced, personalized color correction technologies, potentially leading to improved accessibility and visual experiences for millions globally.
 
+# Recent Changes (November 20, 2025)
+
+**CVD Type Mismatch Detection & Hybrid Filter System:**
+- Implemented mismatch detection between user-indicated CVD type and CCT-detected type
+- Created CVDMismatch page that displays discrepancy and offers retest option
+- Added session state tracking: `retestRequested`, `previousConeTestResult`, `useHybridFilter`
+- On first mismatch: system redirects to mismatch page and requests retest
+- On second mismatch (after retest): system uses hybrid filter approach
+- Hybrid filter logic: OS preset for indicated type + CCT severity from indicated axis only
+- Added `applyHybridFilter()` function: combines clinically-validated OS preset matrices with measured CCT severity
+- TaskGames updated to automatically use hybrid filter when `useHybridFilter` flag is true
+- Maintains both custom AdvancedColorblindFilter and OS preset filters as separate systems
+
+**Filter Application Logic:**
+1. **CCT type = indicated type:** Use custom AdvancedColorblindFilter with cone thresholds
+2. **CCT type ≠ indicated type (first test):** Show mismatch page, request retest
+3. **CCT type ≠ indicated type (retest):** Use OS preset for indicated type + CCT severity from that axis
+
 # Recent Changes (November 19, 2025)
 
 **Universal Button Styling:**

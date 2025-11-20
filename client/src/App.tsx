@@ -7,6 +7,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import Questionnaire from './pages/Questionnaire';
 import ConeTest from './pages/ConeTest';
 import CVDResults from './pages/CVDResults';
+import CVDMismatch from './pages/CVDMismatch';
 import TaskGames from './pages/TaskGames';
 import Statistics from './pages/Statistics';
 import './styles.css';
@@ -46,6 +47,7 @@ function Router() {
         <Route path="/" component={Questionnaire} />
         <Route path="/cone-test" component={ConeTest} />
         <Route path="/cvd-results" component={CVDResults} />
+        <Route path="/cvd-mismatch" component={CVDMismatch} />
         <Route path="/tasks" component={TaskGames} />
         <Route path="/statistics" component={Statistics} />
       </Switch>

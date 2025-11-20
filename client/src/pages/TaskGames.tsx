@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useApp } from '../context/AppContext';
-import { applyAdvancedColorblindFilter, applyOSPresetFilter } from '../utils/filters';
+import { applyAdvancedColorblindFilter, applyOSPresetFilter, applyHybridFilter } from '../utils/filters';
 import { hexToRgb, rgbToHex, rgbToHsl, hslToRgb } from '../utils/color';
 import { TaskPerformance } from '../../../shared/schema';
 
@@ -43,11 +43,42 @@ export default function TaskGames() {
       return color; // No filter for normal vision
     }
     
-    if (currentFilterMode === 'custom' && advancedFilterParams) {
-      return applyAdvancedColorblindFilter(color, advancedFilterParams);
-    } else if (currentFilterMode !== 'custom') {
+    // If using custom filter mode
+    if (currentFilterMode === 'custom') {
+      // Check if we should use hybrid filter (mismatch scenario after retest)
+      if (state.useHybridFilter && state.questionnaire && state.coneTestResult) {
+        // Map questionnaire type to our internal format
+        const getQuestionnaireType = () => {
+          switch (state.questionnaire?.cvdType) {
+            case 'protanopia': return 'protan';
+            case 'deuteranopia': return 'deutan';
+            case 'tritanopia': return 'tritan';
+            default: return null;
+          }
+        };
+        
+        const indicatedType = getQuestionnaireType();
+        
+        if (indicatedType) {
+          // Use hybrid filter: OS preset for indicated type + CCT severity
+          const cctScores = {
+            protan: state.coneTestResult.L.score,
+            deutan: state.coneTestResult.M.score,
+            tritan: state.coneTestResult.S.score,
+          };
+          return applyHybridFilter(color, indicatedType, cctScores);
+        }
+      }
+      
+      // Normal custom filter
+      if (advancedFilterParams) {
+        return applyAdvancedColorblindFilter(color, advancedFilterParams);
+      }
+    } else {
+      // OS preset filter
       return applyOSPresetFilter(color, currentFilterMode);
     }
+    
     return color; // No filter if no params available
   };
 
