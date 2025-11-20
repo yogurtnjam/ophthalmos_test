@@ -67,7 +67,7 @@ export type RGBAdjustment = z.infer<typeof rgbAdjustmentSchema>;
 // Task Performance Schema
 export const taskPerformanceSchema = z.object({
   taskId: z.string(), // "tile-1", "tile-2", "color-match", "card-match"
-  filterType: z.enum(["custom", "protanopia", "deuteranopia", "tritanopia", "grayscale"]),
+  filterType: z.enum(["custom", "hybrid", "protanopia", "deuteranopia", "tritanopia", "grayscale"]),
   timeMs: z.number(),
   swipes: z.number(),
   clicks: z.number(),

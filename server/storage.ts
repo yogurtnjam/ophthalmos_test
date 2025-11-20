@@ -10,6 +10,7 @@ export interface IStorage {
   updateConeTestResult(sessionId: string, result: ConeTestResult): Promise<void>;
   updateRGBAdjustment(sessionId: string, adjustment: RGBAdjustment): Promise<void>;
   updateAdvancedFilter(sessionId: string, params: AdvancedFilterParams): Promise<void>;
+  updateHybridFilter(sessionId: string, useHybridFilter: boolean): Promise<void>;
   
   // Task performance
   saveTaskPerformance(sessionId: string, performance: TaskPerformance): Promise<void>;
@@ -56,6 +57,14 @@ export class MemStorage implements IStorage {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.advancedFilterParams = params;
+      this.sessions.set(sessionId, session);
+    }
+  }
+
+  async updateHybridFilter(sessionId: string, useHybridFilter: boolean): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.useHybridFilter = useHybridFilter;
       this.sessions.set(sessionId, session);
     }
   }

@@ -65,6 +65,21 @@ export default function CVDResults() {
         ...s,
         useHybridFilter: true,
       }));
+      
+      // Save to backend
+      const saveHybridFlag = async () => {
+        try {
+          const sessionId = state.sessionId;
+          if (sessionId) {
+            const { apiRequest } = await import('@/lib/queryClient');
+            await apiRequest('POST', `/api/sessions/${sessionId}/hybrid-filter`, { useHybridFilter: true });
+            console.log('[CVDResults] Hybrid filter flag saved to backend');
+          }
+        } catch (error) {
+          console.error('[CVDResults] Failed to save hybrid filter flag:', error);
+        }
+      };
+      saveHybridFlag();
     }
 
     // If the retest now MATCHES (no mismatch), clear all mismatch flags
@@ -75,8 +90,23 @@ export default function CVDResults() {
         retestRequested: false,
         previousConeTestResult: null,
       }));
+      
+      // Save to backend
+      const clearHybridFlag = async () => {
+        try {
+          const sessionId = state.sessionId;
+          if (sessionId) {
+            const { apiRequest } = await import('@/lib/queryClient');
+            await apiRequest('POST', `/api/sessions/${sessionId}/hybrid-filter`, { useHybridFilter: false });
+            console.log('[CVDResults] Hybrid filter flag cleared in backend');
+          }
+        } catch (error) {
+          console.error('[CVDResults] Failed to clear hybrid filter flag:', error);
+        }
+      };
+      clearHybridFlag();
     }
-  }, [hasMismatch, retestRequested, previousConeTestResult, setLocation, setState]);
+  }, [hasMismatch, retestRequested, previousConeTestResult, setLocation, setState, state.sessionId]);
 
   const handleContinue = () => {
     // Regenerate custom phase colors when starting custom tasks

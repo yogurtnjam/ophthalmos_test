@@ -111,6 +111,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update hybrid filter flag for a session
+  app.post('/api/sessions/:sessionId/hybrid-filter', async (req, res) => {
+    try {
+      const session = await storage.getSession(req.params.sessionId);
+      if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      const { useHybridFilter } = req.body;
+      if (typeof useHybridFilter !== 'boolean') {
+        return res.status(400).json({ error: 'useHybridFilter must be a boolean' });
+      }
+      await storage.updateHybridFilter(req.params.sessionId, useHybridFilter);
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message || 'Failed to update hybrid filter flag' });
+    }
+  });
+
   // Save task performance
   app.post('/api/sessions/:sessionId/tasks', async (req, res) => {
     try {

@@ -104,9 +104,14 @@ export default function TaskGames() {
       ? (result ? 1 : 0) 
       : result.accuracy;
     
+    // Determine actual filter type being used
+    const actualFilterType = (currentFilterMode === 'custom' && state.useHybridFilter) 
+      ? 'hybrid' 
+      : currentFilterMode;
+    
     const performance: TaskPerformance = {
       taskId: currentGame,
-      filterType: currentFilterMode,
+      filterType: actualFilterType as any,
       timeMs,
       swipes,
       clicks,
@@ -114,7 +119,7 @@ export default function TaskGames() {
       accuracy,
       timestamp: new Date().toISOString(),
     };
-    console.log('[TaskGames] Saving task performance:', { taskId: currentGame, filterType: currentFilterMode, timeMs, accuracy });
+    console.log('[TaskGames] Saving task performance:', { taskId: currentGame, filterType: actualFilterType, useHybridFilter: state.useHybridFilter, timeMs, accuracy });
     addTaskPerformance(performance);
     setIsGameActive(false);
 

@@ -215,9 +215,10 @@ export function applyCustomAdaptiveFilter(hex: string, adjustment: RGBAdjustment
 /**
  * Get display name for filter type
  */
-export function getFilterDisplayName(filterType: 'custom' | OSPresetFilter): string {
+export function getFilterDisplayName(filterType: 'custom' | 'hybrid' | OSPresetFilter): string {
   switch (filterType) {
     case 'custom': return 'Custom Adaptive';
+    case 'hybrid': return 'Hybrid Filter';
     case 'protanopia': return 'Protanopia Preset';
     case 'deuteranopia': return 'Deuteranopia Preset';
     case 'tritanopia': return 'Tritanopia Preset';
@@ -351,19 +352,26 @@ export function getRecommendedFilter(
  * Hybrid filter: OS preset base + CCT confusion axis adjustment
  * Used when there's a mismatch between user-indicated type and CCT-detected type after retest.
  * 
+ * Strategy:
+ * 1. Apply the base OS preset filter for the self-reported CVD type (full intensity)
+ * 2. Apply additional confusion axis adjustment based on CCT severity for specific hues
+ * 
+ * Confusion axis adjustments:
+ * - Protan: Shift reds toward yellows/greens along protan confusion line (hue 0-60°)
+ * - Deutan: Shift greens toward reds/yellows along deutan confusion line (hue 90-150°)
+ * - Tritan: Shift blues toward cyan/purple along tritan axis (hue 180-270°)
+ * 
  * @param colorHex - The color to filter
  * @param indicatedType - User's self-reported CVD type ('protan', 'deutan', or 'tritan')
  * @param cctScores - Cone contrast test scores for all three axes
- * @param intensity - Filter intensity (0-1), defaults to 1
  * @returns Filtered color hex string
  */
 export function applyHybridFilter(
   colorHex: string,
   indicatedType: 'protan' | 'deutan' | 'tritan',
-  cctScores: ConeTestScores,
-  intensity = 1
+  cctScores: ConeTestScores
 ): string {
-  // Map indicated type to OS preset
+  // Step 1: Apply base OS preset filter for self-reported type (full intensity)
   const presetMap: Record<'protan' | 'deutan' | 'tritan', OSPresetFilter> = {
     protan: 'protanopia',
     deutan: 'deuteranopia',
@@ -371,13 +379,58 @@ export function applyHybridFilter(
   };
   
   const osPreset = presetMap[indicatedType];
+  const baseFiltered = applyOSPresetFilter(colorHex, osPreset, 1.0);
   
-  // Get the CCT severity for the indicated type's confusion axis
-  // Normalize from 0-40 scale to 0-1 scale
+  // Step 2: Apply confusion axis adjustment based on CCT severity
+  const rgb = hexToRgb(baseFiltered);
+  if (!rgb) return baseFiltered;
+  
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+  
+  // Skip adjustment for achromatic colors
+  if (hsl.s < 0.01) return baseFiltered;
+  
+  // Get CCT severity for the indicated type (0-40 scale normalized to 0-1)
   const cctSeverity = Math.min(1, (cctScores[indicatedType] ?? 0) / 40);
   
-  // Apply OS preset filter with CCT-measured severity
-  // This uses the clinically-validated confusion matrix for the indicated type
-  // but scales its intensity based on what the CCT actually measured
-  return applyOSPresetFilter(colorHex, osPreset, cctSeverity * intensity);
+  // Apply confusion axis hue shift based on CVD type
+  let hueShift = 0;
+  
+  if (indicatedType === 'protan') {
+    // Protan: Shift reds/oranges (0-60°) toward yellows/greens
+    if (hsl.h >= 0 && hsl.h <= 60) {
+      // Shift toward yellow-green (90-120°)
+      hueShift = 30 * cctSeverity;
+    } else if (hsl.h >= 330 && hsl.h <= 360) {
+      // Wrap-around reds: also shift toward yellow
+      hueShift = 30 * cctSeverity;
+    }
+  } else if (indicatedType === 'deutan') {
+    // Deutan: Shift greens (90-150°) toward reds/yellows
+    if (hsl.h >= 90 && hsl.h <= 150) {
+      // Shift toward yellow-orange (30-60°)
+      hueShift = -30 * cctSeverity;
+    }
+  } else if (indicatedType === 'tritan') {
+    // Tritan: Shift blues/cyans (180-270°) toward cyan or purple
+    if (hsl.h >= 180 && hsl.h <= 220) {
+      // Cyan range: shift toward pure cyan (180°)
+      hueShift = -20 * cctSeverity;
+    } else if (hsl.h >= 220 && hsl.h <= 270) {
+      // Blue range: shift toward purple (280-300°)
+      hueShift = 20 * cctSeverity;
+    }
+  }
+  
+  // Apply hue shift
+  const newHue = (hsl.h + hueShift + 360) % 360;
+  
+  // Convert back to RGB
+  const newRgb = hslToRgb(newHue, hsl.s, hsl.l);
+  
+  return rgbToHex(
+    Math.round(Math.max(0, Math.min(255, newRgb.r))),
+    Math.round(Math.max(0, Math.min(255, newRgb.g))),
+    Math.round(Math.max(0, Math.min(255, newRgb.b)))
+  );
 }

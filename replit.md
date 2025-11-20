@@ -61,15 +61,24 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 - When all 12 cards are matched, accuracy is calculated from ref values and `onComplete` is called
 - Added console logging to track completion flow for debugging
 
-**CVD Type Mismatch Detection & Hybrid Filter System:**
+**CVD Type Mismatch Detection & Hybrid Filter System (FIXED):**
 - Implemented mismatch detection between user-indicated CVD type and CCT-detected type
 - Created CVDMismatch page that displays discrepancy and offers retest option
 - Added session state tracking: `retestRequested`, `previousConeTestResult`, `useHybridFilter`
 - On first mismatch: system redirects to mismatch page and requests retest
 - On second mismatch (after retest): system uses hybrid filter approach
-- Hybrid filter logic: OS preset for indicated type + CCT severity from indicated axis only
-- Added `applyHybridFilter()` function: combines clinically-validated OS preset matrices with measured CCT severity
-- TaskGames updated to automatically use hybrid filter when `useHybridFilter` flag is true
+- **Hybrid filter strategy (2-step process):**
+  1. Apply base OS preset filter for self-reported CVD type at full intensity
+  2. Apply confusion axis-specific hue adjustments based on CCT severity:
+     - Protan: Shift reds/oranges (hue 0-60°, 330-360°) toward yellows/greens (+30° × severity)
+     - Deutan: Shift greens (hue 90-150°) toward reds/yellows (-30° × severity)
+     - Tritan: Shift blues/cyans (hue 180-270°) toward cyan/purple (±20° × severity)
+- `applyHybridFilter()` combines OS preset base with CCT-measured confusion axis adjustments
+- **Backend persistence:** New endpoint POST /api/sessions/:id/hybrid-filter saves useHybridFilter flag to database
+- **Task performance tracking:** Added "hybrid" to filterType enum; tasks completed with hybrid filter are recorded with filterType: "hybrid"
+- **Frontend integration:** CVDResults page saves hybrid flag to backend when persistent mismatch detected
+- **Display:** Hybrid filter tasks appear as "Hybrid Filter" in statistics page
+- TaskGames detects `state.useHybridFilter` flag and applies hybrid filter when true
 - Maintains both custom AdvancedColorblindFilter and OS preset filters as separate systems
 
 **Filter Application Logic:**
