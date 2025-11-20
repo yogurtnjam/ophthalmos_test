@@ -23,6 +23,11 @@ export default function TaskGames() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [, forceUpdate] = useState(0);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Update timer display every 100ms while game is active
   useEffect(() => {
     if (!isGameActive) return;

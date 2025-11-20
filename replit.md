@@ -4,6 +4,12 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**Scroll Position Fix for Task Games:**
+- Added automatic scroll-to-top when TaskGames page loads
+- Ensures users see Game 1 title and "Start Game" button immediately
+- Prevents page from showing middle of content on initial load
+- Applied via useEffect hook with window.scrollTo(0, 0) on component mount
+
 **Empty Questionnaire Input Fields:**
 - All form fields now start completely empty (no pre-filled values)
 - Name: Empty with placeholder "Enter your full name"
