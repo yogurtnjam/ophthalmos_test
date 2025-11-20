@@ -554,6 +554,10 @@ function CardMatchingGame({
   const [isChecking, setIsChecking] = useState(false);
   const [correctMatches, setCorrectMatches] = useState(0);
   const [totalAttempts, setTotalAttempts] = useState(0);
+  
+  // Use refs to track actual values for completion calculation
+  const correctMatchesRef = useRef(0);
+  const totalAttemptsRef = useRef(0);
 
   // Generate and shuffle cards when game becomes active
   useEffect(() => {
@@ -565,6 +569,8 @@ function CardMatchingGame({
       setIsChecking(false);
       setCorrectMatches(0);
       setTotalAttempts(0);
+      correctMatchesRef.current = 0;
+      totalAttemptsRef.current = 0;
     }
   }, [isActive, cards.length, cardColors]);
 
@@ -592,44 +598,62 @@ function CardMatchingGame({
       setIsChecking(true);
       const [first, second] = newSelected;
       
-      // Increment total attempts
-      setTotalAttempts(t => t + 1);
-      
       if (cards[first] === cards[second]) {
-        // Match found - increment correct matches and add to matched
-        const totalCards = cards.length; // Capture cards.length in closure
+        // Match found - increment both correct and total
+        const totalCards = cards.length;
+        
+        // Increment refs immediately for accurate tracking
+        correctMatchesRef.current += 1;
+        totalAttemptsRef.current += 1;
+        
         setTimeout(() => {
-          setCorrectMatches(prevCorrect => {
-            const newCorrect = prevCorrect + 1;
+          // Update states for display
+          setCorrectMatches(correctMatchesRef.current);
+          setTotalAttempts(totalAttemptsRef.current);
+          
+          setMatched(prevMatched => {
+            const newMatched = [...prevMatched, first, second];
             
-            setMatched(prevMatched => {
-              const newMatched = [...prevMatched, first, second];
-              // Check if all matched
-              if (newMatched.length === totalCards) {
-                // Calculate accuracy as ratio of correct matches to total attempts
-                setTimeout(() => {
-                  setTotalAttempts(prevAttempts => {
-                    const accuracyRatio = newCorrect / prevAttempts;
-                    // Pass both correct status and actual accuracy ratio
-                    onComplete({ 
-                      correct: accuracyRatio >= 0.5, 
-                      accuracy: accuracyRatio 
-                    });
-                    return prevAttempts;
-                  });
-                }, 500);
-              }
-              return newMatched;
-            });
+            // Check if all cards are matched
+            if (newMatched.length === totalCards) {
+              // Game complete! Use ref values for accurate calculation
+              const finalCorrect = correctMatchesRef.current;
+              const finalAttempts = totalAttemptsRef.current;
+              const accuracyRatio = finalAttempts > 0 ? finalCorrect / finalAttempts : 0;
+              
+              console.log('[Card Matching] Game complete!', {
+                totalCards,
+                newMatchedLength: newMatched.length,
+                finalCorrect,
+                finalAttempts,
+                accuracyRatio
+              });
+              
+              // Call onComplete after a small delay to ensure state updates
+              setTimeout(() => {
+                console.log('[Card Matching] Calling onComplete with', {
+                  correct: accuracyRatio >= 0.5,
+                  accuracy: accuracyRatio
+                });
+                onComplete({ 
+                  correct: accuracyRatio >= 0.5, 
+                  accuracy: accuracyRatio 
+                });
+              }, 100);
+            }
             
-            return newCorrect;
+            return newMatched;
           });
+          
           setSelected([]);
           setIsChecking(false);
         }, 600);
-      } else{
-        // No match - just reset selected cards (already counted in totalAttempts)
+      } else {
+        // No match - just increment attempts
+        totalAttemptsRef.current += 1;
+        
         setTimeout(() => {
+          setTotalAttempts(totalAttemptsRef.current);
           setSelected([]);
           setIsChecking(false);
         }, 1000);

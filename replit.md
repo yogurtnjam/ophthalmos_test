@@ -4,6 +4,22 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**White Background UI Redesign:**
+- Removed gradient background system and AssessmentLayout component
+- Implemented clean white background throughout all pages
+- Created sticky navigation header at top with buttons: Questionnaire, Cone Test, Custom Preset Tasks, OS Preset Tasks, Results
+- All pages now use simple white background containers with appropriate max-widths
+- Navigation buttons show active state (filled variant) for current page, outline variant for inactive pages
+- Custom/OS Preset Tasks buttons in nav set filter mode when clicked
+
+**Card Matching Bug Fix:**
+- Fixed critical bug where Card Matching game completion callback was never being called
+- Root cause: Nested asynchronous React state updates caused `onComplete` to never execute
+- Solution: Implemented `useRef` hooks (`correctMatchesRef`, `totalAttemptsRef`) to track values synchronously
+- Refs are updated immediately on each match/attempt, ensuring accurate completion calculation
+- When all 12 cards are matched, accuracy is calculated from ref values and `onComplete` is called
+- Added console logging to track completion flow for debugging
+
 **CVD Type Mismatch Detection & Hybrid Filter System:**
 - Implemented mismatch detection between user-indicated CVD type and CCT-detected type
 - Created CVDMismatch page that displays discrepancy and offers retest option
