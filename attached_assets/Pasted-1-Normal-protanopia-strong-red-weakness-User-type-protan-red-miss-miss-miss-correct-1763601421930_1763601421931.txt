@@ -1,0 +1,208 @@
+1. Normal protanopia (strong red weakness)
+
+User type: protan
+
+red:   ["miss","miss","miss","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan severity = 0.45
+→ type: protan
+
+2. Normal deutan (green weakness)
+
+User type: deutan
+
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["miss","miss","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ deutan severity = 0.25
+→ type: deutan
+
+3. Normal tritan (blue weakness)
+
+User type: tritan
+
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["miss","miss","correct","correct","correct","correct"]
+
+
+→ tritan severity = 0.25
+→ type: tritan
+
+4. User does not know type (protan highest)
+
+User type: undefined
+
+red:   ["miss","miss","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.25
+→ type: protan
+
+5. User does not know type (tritan highest)
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["miss","miss","miss","correct","correct","correct"]
+
+
+→ tritan = 0.45
+→ type: tritan
+
+⚠️ 6. Conflict: user says protan, test says deutan
+
+User type: protan
+
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["miss","miss","miss","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.00
+→ deutan = 0.45
+→ expected = protan (user override)
+
+⚠️ 7. Conflict: user says deutan, test says tritan
+
+User type: deutan
+
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["miss","miss","miss","correct","correct","correct"]
+
+
+→ deutan = 0.00
+→ tritan = 0.45
+→ expected = deutan
+
+⚠️ 8. Conflict: user says tritan, test says protan
+
+User type: tritan
+
+red:   ["miss","miss","miss","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.45
+→ tritan = 0.00
+→ expected = tritan
+
+😵‍💫 9. User says protan, test says normal
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ all severities = 0
+→ expected = protan (user override)
+
+😵‍💫 10. User says deutan, test normal
+
+→ same responses
+→ expected = deutan
+
+😵‍💫 11. User says tritan, test normal
+
+→ same responses
+→ expected = tritan
+
+🌓 12. Mixed protan/deutan
+red:   ["miss","correct","correct","correct","correct","correct"]
+green: ["miss","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.10
+→ deutan = 0.10
+→ highest = protan
+→ type: protan
+
+🌓 13. Mixed deutan/tritan
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["miss","correct","correct","correct","correct","correct"]
+blue:  ["miss","correct","correct","correct","correct","correct"]
+
+
+→ both ~0.10 → pick first highest (deutan)
+→ type: deutan
+
+🌓 14. Mixed protan/tritan
+red:   ["miss","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["miss","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.10
+→ tritan = 0.10
+→ pick protan
+→ type: protan
+
+🟡 15. All near-normal
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ all 0
+→ pick protan
+→ type: protan (or "normal" depending on your design)
+
+🟡 16. All extremely close
+red:   ["miss","correct","correct","correct","correct","correct"]
+green: ["miss","correct","correct","correct","correct","correct"]
+blue:  ["miss","correct","correct","correct","correct","correct"]
+
+
+→ all = 0.10
+→ pick protan
+→ type: protan
+
+17. Strong protan, moderate deutan
+red:   ["miss","miss","miss","miss","correct","correct"]
+green: ["miss","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.65
+→ deutan = 0.10
+→ type: protan
+
+18. Strong deutan, mild tritan
+red:   ["correct","correct","correct","correct","correct","correct"]
+green: ["miss","miss","miss","correct","correct","correct"]
+blue:  ["miss","correct","correct","correct","correct","correct"]
+
+
+→ deutan = 0.45
+→ tritan = 0.10
+→ type: deutan
+
+19. Tritan with minor protan noise
+red:   ["miss","correct","correct","correct","correct","correct"]
+green: ["correct","correct","correct","correct","correct","correct"]
+blue:  ["miss","miss","miss","correct","correct","correct"]
+
+
+→ tritan = 0.45
+→ protan = 0.10
+→ type: tritan
+
+20. User says protan, but deutan close
+
+User type: protan
+
+red:   ["miss","correct","correct","correct","correct","correct"]
+green: ["miss","correct","correct","correct","correct","correct"]
+blue:  ["correct","correct","correct","correct","correct","correct"]
+
+
+→ protan = 0.10
+→ deutan = 0.10
+→ expected = protan (user override)

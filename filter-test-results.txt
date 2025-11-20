@@ -1,0 +1,502 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 1: Normal protanopia (strong red weakness)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: protan
+
+Cone Test Results:
+  Red (L-cone):   miss, miss, miss, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  18
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 45.0% (0.450 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 2: Normal deutan (green weakness)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: deutan
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): miss, miss, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  10
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     deutan
+  Severity: 25.0% (0.250 normalized)
+
+Expected: deutan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 3: Normal tritan (blue weakness)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: tritan
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, miss, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  10
+
+ADAPTIVE FILTER RESULT:
+  Type:     tritan
+  Severity: 25.0% (0.250 normalized)
+
+Expected: tritan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 4: User does not know type (protan highest)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+
+Cone Test Results:
+  Red (L-cone):   miss, miss, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  10
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 25.0% (0.250 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 5: User does not know type (tritan highest)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, miss, miss, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  18
+
+ADAPTIVE FILTER RESULT:
+  Type:     tritan
+  Severity: 45.0% (0.450 normalized)
+
+Expected: tritan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 6: Conflict: user says protan, test says deutan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: protan
+Notes: User override takes precedence
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): miss, miss, miss, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  18
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 7: Conflict: user says deutan, test says tritan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: deutan
+Notes: User override takes precedence
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, miss, miss, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  18
+
+ADAPTIVE FILTER RESULT:
+  Type:     deutan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: deutan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 8: Conflict: user says tritan, test says protan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: tritan
+Notes: User override takes precedence
+
+Cone Test Results:
+  Red (L-cone):   miss, miss, miss, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  18
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     tritan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: tritan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 9: User says protan, test says normal
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: protan
+Notes: User override with zero severity
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 10: User says deutan, test normal
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: deutan
+Notes: User override with zero severity
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     deutan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: deutan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 11: User says tritan, test normal
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: tritan
+Notes: User override with zero severity
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     tritan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: tritan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 12: Mixed protan/deutan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+Notes: Equal scores, picks protan (first)
+
+Cone Test Results:
+  Red (L-cone):   miss, correct, correct, correct, correct, correct
+  Green (M-cone): miss, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  4
+  Deutan:  4
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 11.5% (0.115 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 13: Mixed deutan/tritan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+Notes: Equal scores, picks deutan (first non-protan)
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): miss, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  4
+  Tritan:  4
+
+ADAPTIVE FILTER RESULT:
+  Type:     deutan
+  Severity: 11.5% (0.115 normalized)
+
+Expected: deutan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 14: Mixed protan/tritan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+Notes: Equal scores, picks protan (first)
+
+Cone Test Results:
+  Red (L-cone):   miss, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  4
+  Deutan:  0
+  Tritan:  4
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 11.5% (0.115 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 15: All near-normal
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+Notes: All scores zero, defaults to protan
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  0
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 0.0% (0.000 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 16: All extremely close
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+Notes: All scores equal, defaults to protan
+
+Cone Test Results:
+  Red (L-cone):   miss, correct, correct, correct, correct, correct
+  Green (M-cone): miss, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  4
+  Deutan:  4
+  Tritan:  4
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 13.0% (0.130 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 17: Strong protan, moderate deutan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+
+Cone Test Results:
+  Red (L-cone):   miss, miss, miss, miss, correct, correct
+  Green (M-cone): miss, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  26
+  Deutan:  4
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 65.0% (0.650 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 18: Strong deutan, mild tritan
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+
+Cone Test Results:
+  Red (L-cone):   correct, correct, correct, correct, correct, correct
+  Green (M-cone): miss, miss, miss, correct, correct, correct
+  Blue (S-cone):  miss, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  0
+  Deutan:  18
+  Tritan:  4
+
+ADAPTIVE FILTER RESULT:
+  Type:     deutan
+  Severity: 45.0% (0.450 normalized)
+
+Expected: deutan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 19: Tritan with minor protan noise
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: undefined
+
+Cone Test Results:
+  Red (L-cone):   miss, correct, correct, correct, correct, correct
+  Green (M-cone): correct, correct, correct, correct, correct, correct
+  Blue (S-cone):  miss, miss, miss, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  4
+  Deutan:  0
+  Tritan:  18
+
+ADAPTIVE FILTER RESULT:
+  Type:     tritan
+  Severity: 45.0% (0.450 normalized)
+
+Expected: tritan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST CASE 20: User says protan, but deutan close
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Type: protan
+Notes: User override, blending applies
+
+Cone Test Results:
+  Red (L-cone):   miss, correct, correct, correct, correct, correct
+  Green (M-cone): miss, correct, correct, correct, correct, correct
+  Blue (S-cone):  correct, correct, correct, correct, correct, correct
+
+Calculated Scores (0-40 scale):
+  Protan:  4
+  Deutan:  4
+  Tritan:  0
+
+ADAPTIVE FILTER RESULT:
+  Type:     protan
+  Severity: 11.5% (0.115 normalized)
+
+Expected: protan
+Status:   ✅ PASS
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total Tests:  20
+Passed:       20
+Failed:       0
+Success Rate: 100.0%
+
