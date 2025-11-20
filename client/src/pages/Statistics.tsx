@@ -77,7 +77,7 @@ export default function Statistics() {
       title="Performance Statistics"
       description={questionnaire ? `${questionnaire.name} · Age: ${questionnaire.age}` : 'Task Performance Summary'}
       icon={<BarChart3 className="w-8 h-8 text-white" />}
-      maxWidth="6xl"
+      maxWidth="4xl"
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Custom Adaptive Filter Stats */}
