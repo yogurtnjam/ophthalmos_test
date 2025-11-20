@@ -170,7 +170,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : 'grayscale';
 
     // Automatically generate advanced filter parameters from cone test results
-    const advancedFilterParams = createFilterFromConeTest(result);
+    // Pass self-reported type so filter uses it as base (CCT only measures severity)
+    const advancedFilterParams = createFilterFromConeTest(result, state.questionnaire?.cvdType);
 
     // Capture current sessionId before setState
     const currentSessionId = state.sessionId;

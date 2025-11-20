@@ -4,6 +4,16 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**CRITICAL FIX: Custom Filter Now Uses Self-Reported CVD Type:**
+- Fixed major bug where custom filter was overriding self-reported CVD type with detected type
+- Custom filter now ALWAYS uses self-reported CVD type as the base filter
+- CCT (Cone Contrast Test) scores only measure severity on the self-reported axis
+- Modified `createFilterFromConeTest()` to accept self-reported type parameter
+- Added `createAdvancedColorblindFilterWithType()` for explicit type-based filter creation
+- Updated AppContext.tsx to pass questionnaire.cvdType to filter creation
+- **Behavior:** User reports deuteranopia → filter uses 'green' cone type regardless of CCT detection
+- This ensures user's self-knowledge is respected while CCT provides objective severity measurement
+
 **Participant Profile on Results Page:**
 - Added "Participant Profile" section at the top of the Statistics/Results page
 - Displays 5 key fields in a responsive grid:
