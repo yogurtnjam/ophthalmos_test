@@ -189,7 +189,7 @@ export default function TaskGames() {
       <div className="max-w-5xl mx-auto space-y-6">
 
         {isGameActive && (
-          <div className="flex" style={{ marginBottom: 24, padding: '12px 16px', background: 'rgba(13, 148, 136, 0.05)', borderRadius: 10, border: '1px solid rgba(13, 148, 136, 0.15)' }}>
+          <div className="flex" style={{ marginBottom: 24, padding: '12px 16px', background: '#f5f5f5', borderRadius: 10, border: '1px solid #e0e0e0' }}>
             <div className="badge" data-testid="badge-time">
               Time: {((Date.now() - startTime) / 1000).toFixed(1)}s
             </div>
@@ -462,8 +462,8 @@ function ColorScrollMatcher({
                 height: 100,
                 borderRadius: 16,
                 background: applyFilter(targetColor),
-                border: '3px solid #0d9488',
-                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.2)',
+                border: '3px solid #333',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
               }}
               data-testid="target-color"
             />

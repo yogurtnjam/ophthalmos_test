@@ -68,8 +68,8 @@ export default function CVDMismatch() {
         <Card className="shadow-lg" data-testid="card-mismatch">
           <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700">
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Your Indicated Type
               </div>
               <Badge className="text-sm px-3 py-1" data-testid="badge-indicated-type">
@@ -77,8 +77,8 @@ export default function CVDMismatch() {
               </Badge>
             </div>
 
-            <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
-              <div className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-2">
+            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700">
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Test Detected Type
               </div>
               <Badge className="text-sm px-3 py-1" data-testid="badge-detected-type">
@@ -87,8 +87,8 @@ export default function CVDMismatch() {
             </div>
           </div>
 
-          <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
-            <p className="text-sm text-amber-900 dark:text-amber-100">
+          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700">
+            <p className="text-sm text-gray-900 dark:text-gray-100">
               Please retake the test in good lighting. If results still differ, we'll use your indicated type with custom adjustments.
             </p>
           </div>

@@ -4,6 +4,15 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**Light Grey Panels UI Update:**
+- Changed all panel backgrounds from blue/teal to light grey (#f5f5f5)
+- Updated `.game-container` background from teal gradient to solid light grey
+- Updated `.card` class background to light grey with grey borders
+- Changed stats badge containers to light grey background
+- Converted CVDMismatch page panels from colored (blue/purple/amber) to consistent grey theme
+- Updated Color Matcher target color styling from teal accents to neutral grey/black
+- All panels now use consistent `#f5f5f5` background with `#e0e0e0` borders
+
 **White Background UI Redesign:**
 - Removed gradient background system and AssessmentLayout component
 - Implemented clean white background throughout all pages
