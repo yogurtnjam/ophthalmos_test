@@ -30,9 +30,9 @@ function Router() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
-      <nav className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
+      <nav className="border-b border-gray-200 px-4 py-3 sticky top-0 z-50" style={{ background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)' }}>
         <div className="container mx-auto flex gap-2 flex-wrap items-center">
-          <span className="font-bold text-xl mr-4 text-primary">OPHTHALMOS</span>
+          <span className="font-bold text-xl mr-4 text-white">OPHTHALMOS</span>
           <Link href="/">
             <Button
               variant={location === '/' ? 'default' : 'outline'}

@@ -70,9 +70,69 @@ export default function Statistics() {
     }
   };
 
+  // Helper function to get CVD type label
+  const getCVDTypeLabel = (type: string | null | undefined) => {
+    if (!type) return 'Not specified';
+    switch (type) {
+      case 'protanopia':
+        return 'Protanopia (Red Weakness)';
+      case 'deuteranopia':
+        return 'Deuteranopia (Green Weakness)';
+      case 'tritanopia':
+        return 'Tritanopia (Blue Weakness)';
+      case 'normal':
+        return 'Normal Color Vision';
+      case 'protan':
+        return 'Protanopia (Red Deficiency)';
+      case 'deutan':
+        return 'Deuteranopia (Green Deficiency)';
+      case 'tritan':
+        return 'Tritanopia (Blue Deficiency)';
+      default:
+        return type;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-6xl mx-auto">
+        {/* User Profile Section */}
+        <div className="card mb-6">
+          <h2 className="mb-4">Participant Profile</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Name</div>
+              <div className="font-semibold" data-testid="profile-name">
+                {questionnaire?.name || 'N/A'}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Age</div>
+              <div className="font-semibold" data-testid="profile-age">
+                {questionnaire?.age || 'N/A'}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">CVD Type (Self-Reported)</div>
+              <div className="font-semibold" data-testid="profile-cvd-type">
+                {getCVDTypeLabel(questionnaire?.cvdType)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Screen Time (hrs/week)</div>
+              <div className="font-semibold" data-testid="profile-screen-time">
+                {questionnaire?.screenTimePerWeek || 'N/A'}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Detected CVD Type</div>
+              <div className="font-semibold" data-testid="profile-detected-cvd">
+                {getCVDTypeLabel(coneTestResult?.detectedType)}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Custom Adaptive Filter Stats */}
         <div className="card">

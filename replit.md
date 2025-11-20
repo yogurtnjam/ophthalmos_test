@@ -4,6 +4,23 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**Participant Profile on Results Page:**
+- Added "Participant Profile" section at the top of the Statistics/Results page
+- Displays 5 key fields in a responsive grid:
+  1. Name (from questionnaire)
+  2. Age (from questionnaire)
+  3. CVD Type (Self-Reported) (from questionnaire.cvdType)
+  4. Screen Time (hrs/week) (from questionnaire.screenTimePerWeek)
+  5. Detected CVD Type (from coneTestResult.detectedType)
+- Uses `getCVDTypeLabel()` helper to format CVD type labels consistently
+- Provides complete participant overview before viewing task performance data
+
+**Green-Blue Gradient Header:**
+- Navigation header now features vibrant green-to-blue gradient background
+- Gradient: `linear-gradient(135deg, #10b981 0%, #3b82f6 100%)`
+- OPHTHALMOS logo text changed to white for visibility on gradient background
+- Applied in App.tsx navigation component (line 36)
+
 **Light Grey Panels UI Update:**
 - Changed all panel backgrounds from blue/teal to light grey (#f5f5f5)
 - Updated `.game-container` background from teal gradient to solid light grey
