@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Eye } from 'lucide-react';
 import { useEffect } from 'react';
+import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 export default function CVDResults() {
   const { state, nextStep, setState } = useApp();
@@ -209,8 +210,13 @@ export default function CVDResults() {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-background">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <AssessmentLayout
+      title="Your CVD Assessment Results"
+      description={`Detected: ${getCVDTypeLabel(coneTestResult.detectedType)}`}
+      icon={<Eye className="w-8 h-8 text-white" />}
+      maxWidth="4xl"
+    >
+      <div className="space-y-6">
         {/* Test Results Summary */}
         <Card data-testid="card-results-summary">
           <CardHeader>
@@ -468,6 +474,6 @@ export default function CVDResults() {
           </Button>
         </div>
       </div>
-    </div>
+    </AssessmentLayout>
   );
 }

@@ -3,11 +3,12 @@ import { useLocation } from 'wouter';
 import { useApp } from '../context/AppContext';
 import { Questionnaire as QuestionnaireType } from '../../../shared/schema';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye } from 'lucide-react';
+import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 export default function Questionnaire() {
   const { updateQuestionnaire, nextStep } = useApp();
@@ -50,15 +51,13 @@ export default function Questionnaire() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl">Welcome to the CVD Adaptive UI Study</CardTitle>
-          <CardDescription>
-            Please answer a few questions before we begin the Cone Contrast Sensitivity Test.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <AssessmentLayout
+      title="Welcome to OPHTHALMOS"
+      description="Please answer a few questions before we begin the Cone Contrast Sensitivity Test."
+      icon={<Eye className="w-8 h-8 text-white" />}
+    >
+      <Card className="shadow-lg">
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -134,6 +133,6 @@ export default function Questionnaire() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </AssessmentLayout>
   );
 }

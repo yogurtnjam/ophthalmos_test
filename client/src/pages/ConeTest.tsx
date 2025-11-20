@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Eye, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { thresholdFromFixedLevels } from '@/lib/staircaseThreshold';
+import { AssessmentLayout } from '@/components/AssessmentLayout';
 
 type Direction = 'left' | 'up' | 'right' | 'down';
 type ConeType = 'L' | 'M' | 'S';
@@ -247,22 +248,13 @@ export default function ConeTest() {
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <Card className="w-full max-w-2xl" data-testid="card-cone-test-intro">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Eye className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle data-testid="text-title">Cone Contrast Sensitivity Test</CardTitle>
-                <CardDescription data-testid="text-description">
-                  Quick contrast detection test for Red, Green, and Blue/Violet
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
+      <AssessmentLayout
+        title="Cone Contrast Sensitivity Test"
+        description="Quick contrast detection test for Red, Green, and Blue/Violet"
+        icon={<Eye className="w-8 h-8 text-white" />}
+      >
+        <Card className="shadow-lg" data-testid="card-cone-test-intro">
+          <CardContent className="space-y-6 pt-6">
             <div className="space-y-3">
               <h3 className="font-semibold">How it works:</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -322,7 +314,7 @@ export default function ConeTest() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </AssessmentLayout>
     );
   }
 
