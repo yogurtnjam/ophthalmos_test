@@ -3,7 +3,7 @@ import { useApp, generatePhaseColors } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Eye } from 'lucide-react';
+import { AlertCircle, ArrowRight, Eye } from 'lucide-react';
 import { useEffect } from 'react';
 
 export default function CVDResults() {
@@ -52,8 +52,17 @@ export default function CVDResults() {
 
   // Handle mismatch detection and state updates in useEffect
   useEffect(() => {
+    console.log('[CVDResults] Mismatch detection:', { 
+      hasMismatch, 
+      retestRequested, 
+      previousConeTestResult: !!previousConeTestResult,
+      indicatedType,
+      detectedType
+    });
+
     // If this is the FIRST test and there's a mismatch, redirect to mismatch page
     if (hasMismatch && !retestRequested) {
+      console.log('[CVDResults] First mismatch detected, redirecting to /cvd-mismatch');
       setLocation('/cvd-mismatch');
       return;
     }
@@ -61,6 +70,7 @@ export default function CVDResults() {
     // If this is the SECOND test (retestRequested=true) and STILL mismatched,
     // mark to use hybrid filter
     if (hasMismatch && retestRequested && previousConeTestResult) {
+      console.log('[CVDResults] Second mismatch detected (persistent), activating hybrid filter');
       setState(s => ({
         ...s,
         useHybridFilter: true,
@@ -245,6 +255,39 @@ export default function CVDResults() {
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Hybrid Filter Notification Banner */}
+        {state.useHybridFilter && hasMismatch && (
+          <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950" data-testid="card-hybrid-filter-notice">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-6 h-6 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+                    Hybrid Filter Strategy Activated
+                  </h3>
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    We detected a persistent difference between your self-reported CVD type ({getCVDTypeLabel(indicatedType || '')}) 
+                    and test results ({getCVDTypeLabel(detectedType)}). To provide the best experience, we're using a hybrid approach:
+                  </p>
+                  <ul className="text-sm text-amber-800 dark:text-amber-200 space-y-1 ml-4">
+                    <li className="flex gap-2">
+                      <span>•</span>
+                      <span><strong>Base filter:</strong> OS preset for your indicated type ({getCVDTypeLabel(indicatedType || '')})</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span>•</span>
+                      <span><strong>Adjustments:</strong> Confusion axis corrections based on your cone test results</span>
+                    </li>
+                  </ul>
+                  <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mt-2">
+                    No additional testing needed - you can proceed to tasks below.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Test Results Summary */}
         <Card data-testid="card-results-summary">
           <CardHeader>

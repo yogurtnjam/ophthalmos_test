@@ -26,7 +26,7 @@ The UI features a clean white background throughout all pages with a sticky navi
 
 ## Feature Specifications
 
-- **CVD Mismatch Detection & Hybrid Filter System:** Detects discrepancies between user-reported and CCT-detected CVD types. Upon persistent mismatch, a hybrid filter is activated, combining an OS preset with CCT-measured confusion axis adjustments.
+- **CVD Mismatch Detection & Hybrid Filter System:** Detects discrepancies between user-reported and CCT-detected CVD types. Upon persistent mismatch after second test, a hybrid filter is automatically activated (no third retest required). The system displays a prominent amber banner explaining the hybrid strategy: base OS preset filter for indicated type combined with CCT-measured confusion axis adjustments. Backend persists mismatch flags (retestRequested, previousConeTestResult, useHybridFilter) across page reloads.
 - **Advanced Filter Recommendation System:** Determines optimal colorblind filters based on user-reported type and cone test scores, implementing intelligent blending for close scores.
 - **Confusion Matrix Filter Implementation:** Replaces simple hue shifts with scientifically accurate Brettel et al., 1997 confusion matrices for protanopia, deuteranopia, and tritanopia, with severity-based scaling and achromatic guards.
 - **Task Accuracy System:** Extends `TaskPerformance` schema with an `accuracy` field, providing precise performance measurement for all task games.
