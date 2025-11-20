@@ -14,7 +14,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-3">
+    <nav className="px-4 py-3 border-b border-gray-200" style={{ background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)' }}>
       <div className="container mx-auto flex gap-2 flex-wrap">
         {navItems.map((item) => (
           <Link key={item.path + item.label} href={item.path}>

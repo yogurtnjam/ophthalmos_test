@@ -66,7 +66,13 @@ export default function CVDMismatch() {
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-2xl mx-auto">
         <Card className="shadow-lg" data-testid="card-mismatch">
-          <CardContent className="space-y-6 pt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="w-6 h-6 text-amber-600" />
+              Mismatch Detected Between Your CVD Type and Test Results
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700">
               <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
