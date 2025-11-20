@@ -1,5 +1,7 @@
 import { useApp } from '../context/AppContext';
 import { getFilterDisplayName } from '../utils/filters';
+import { AssessmentLayout } from '@/components/AssessmentLayout';
+import { BarChart3 } from 'lucide-react';
 
 export default function Statistics() {
   const { state, resetSession } = useApp();
@@ -71,25 +73,13 @@ export default function Statistics() {
   };
 
   return (
-    <div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <h1>Performance Statistics</h1>
-        {questionnaire && (
-          <p className="small">
-            Participant: {questionnaire.name} · Age: {questionnaire.age}
-          </p>
-        )}
-        {coneTestResult && (
-          <div className="flex" style={{ marginTop: 8, gap: 8 }}>
-            <div className="badge">Detected: {coneTestResult.detectedType}</div>
-            <div className="badge">L-Score: {coneTestResult.L.score}</div>
-            <div className="badge">M-Score: {coneTestResult.M.score}</div>
-            <div className="badge">S-Score: {coneTestResult.S.score}</div>
-          </div>
-        )}
-      </div>
-
-      <div className="row row-2">
+    <AssessmentLayout
+      title="Performance Statistics"
+      description={questionnaire ? `${questionnaire.name} · Age: ${questionnaire.age}` : 'Task Performance Summary'}
+      icon={<BarChart3 className="w-8 h-8 text-white" />}
+      maxWidth="6xl"
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Custom Adaptive Filter Stats */}
         <div className="card">
           <h2>Custom Adaptive Filter</h2>
@@ -231,6 +221,6 @@ export default function Statistics() {
           </button>
         </div>
       </div>
-    </div>
+    </AssessmentLayout>
   );
 }
