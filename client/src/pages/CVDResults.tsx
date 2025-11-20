@@ -92,19 +92,23 @@ export default function CVDResults() {
       }));
       
       // Save to backend
-      const clearHybridFlag = async () => {
+      const clearMismatchState = async () => {
         try {
           const sessionId = state.sessionId;
           if (sessionId) {
             const { apiRequest } = await import('@/lib/queryClient');
             await apiRequest('POST', `/api/sessions/${sessionId}/hybrid-filter`, { useHybridFilter: false });
-            console.log('[CVDResults] Hybrid filter flag cleared in backend');
+            await apiRequest('POST', `/api/sessions/${sessionId}/mismatch-flags`, { 
+              retestRequested: false, 
+              previousConeTestResult: null 
+            });
+            console.log('[CVDResults] Hybrid filter flag and mismatch flags cleared in backend');
           }
         } catch (error) {
-          console.error('[CVDResults] Failed to clear hybrid filter flag:', error);
+          console.error('[CVDResults] Failed to clear mismatch state:', error);
         }
       };
-      clearHybridFlag();
+      clearMismatchState();
     }
   }, [hasMismatch, retestRequested, previousConeTestResult, setLocation, setState, state.sessionId]);
 

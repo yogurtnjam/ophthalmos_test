@@ -129,6 +129,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update mismatch flags (retestRequested and previousConeTestResult)
+  app.post('/api/sessions/:sessionId/mismatch-flags', async (req, res) => {
+    try {
+      const session = await storage.getSession(req.params.sessionId);
+      if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      const { retestRequested, previousConeTestResult } = req.body;
+      if (typeof retestRequested !== 'boolean') {
+        return res.status(400).json({ error: 'retestRequested must be a boolean' });
+      }
+      // Validate previousConeTestResult if provided
+      if (previousConeTestResult !== null && previousConeTestResult !== undefined) {
+        coneTestResultSchema.parse(previousConeTestResult);
+      }
+      await storage.updateMismatchFlags(req.params.sessionId, retestRequested, previousConeTestResult || null);
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message || 'Failed to update mismatch flags' });
+    }
+  });
+
   // Save task performance
   app.post('/api/sessions/:sessionId/tasks', async (req, res) => {
     try {

@@ -1,168 +1,6 @@
 # Overview
 
-OPHTHALMOS is a research application designed to evaluate personalized adaptive user interfaces for individuals with color vision deficiency (CVD). It assesses users' cone sensitivities, allows for customization of RGB hue adjustments, and compares the performance of custom adaptive filters against standard OS-level preset filters (protanopia, deuteranopia, tritanopia, grayscale) on visual tasks. The application collects quantitative metrics (time, accuracy, interactions) to measure the effectiveness of these color adaptation strategies. The business vision is to provide a robust platform for researching and developing advanced, personalized color correction technologies, potentially leading to improved accessibility and visual experiences for millions globally.
-
-# Recent Changes (November 20, 2025)
-
-**OS Preset Task Flow Fix:**
-- Fixed issue where OS preset tasks were being skipped or incorrectly tracked
-- Added protection to prevent filter mode switches during active custom phase
-- OS Preset Tasks navigation button now disabled until custom tasks complete
-- Ensures proper sequential phase completion: Custom → OS Preset → Statistics
-- All task performances now saved with correct filterType (custom vs OS preset)
-
-**Scroll Position Fix for Task Games:**
-- Added automatic scroll-to-top when TaskGames page loads
-- Ensures users see Game 1 title and "Start Game" button immediately
-- Prevents page from showing middle of content on initial load
-- Applied via useEffect hook with window.scrollTo(0, 0) on component mount
-
-**Empty Questionnaire Input Fields:**
-- All form fields now start completely empty (no pre-filled values)
-- Name: Empty with placeholder "Enter your full name"
-- Age: Empty with placeholder "Enter your age"
-- CVD Type: Shows placeholder "Select an option"
-- Screen Time: Empty with placeholder "Enter hours per week"
-- All fields are required and validated before form submission
-- User must provide all information themselves
-
-**Participant Profile on Results Page:**
-- Added "Participant Profile" section at the top of the Statistics/Results page
-- Displays 5 key fields in a responsive grid:
-  1. Name (from questionnaire)
-  2. Age (from questionnaire)
-  3. CVD Type (Self-Reported) (from questionnaire.cvdType)
-  4. Screen Time (hrs/week) (from questionnaire.screenTimePerWeek)
-  5. Detected CVD Type (from coneTestResult.detectedType)
-- Uses `getCVDTypeLabel()` helper to format CVD type labels consistently
-- Provides complete participant overview before viewing task performance data
-
-**Green-Blue Gradient Header:**
-- Navigation header now features vibrant green-to-blue gradient background
-- Gradient: `linear-gradient(135deg, #10b981 0%, #3b82f6 100%)`
-- OPHTHALMOS logo text changed to white for visibility on gradient background
-- Applied in App.tsx navigation component (line 36)
-
-**Light Grey Panels UI Update:**
-- Changed all panel backgrounds from blue/teal to light grey (#f5f5f5)
-- Updated `.game-container` background from teal gradient to solid light grey
-- Updated `.card` class background to light grey with grey borders
-- Changed stats badge containers to light grey background
-- Converted CVDMismatch page panels from colored (blue/purple/amber) to consistent grey theme
-- Updated Color Matcher target color styling from teal accents to neutral grey/black
-- All panels now use consistent `#f5f5f5` background with `#e0e0e0` borders
-
-**White Background UI Redesign:**
-- Removed gradient background system and AssessmentLayout component
-- Implemented clean white background throughout all pages
-- Created sticky navigation header at top with buttons: Questionnaire, Cone Test, Custom Preset Tasks, OS Preset Tasks, Results
-- All pages now use simple white background containers with appropriate max-widths
-- Navigation buttons show active state (filled variant) for current page, outline variant for inactive pages
-- Custom/OS Preset Tasks buttons in nav set filter mode when clicked
-
-**Card Matching Bug Fix:**
-- Fixed critical bug where Card Matching game completion callback was never being called
-- Root cause: Nested asynchronous React state updates caused `onComplete` to never execute
-- Solution: Implemented `useRef` hooks (`correctMatchesRef`, `totalAttemptsRef`) to track values synchronously
-- Refs are updated immediately on each match/attempt, ensuring accurate completion calculation
-- When all 12 cards are matched, accuracy is calculated from ref values and `onComplete` is called
-- Added console logging to track completion flow for debugging
-
-**CVD Type Mismatch Detection & Hybrid Filter System (FIXED):**
-- Implemented mismatch detection between user-indicated CVD type and CCT-detected type
-- Created CVDMismatch page that displays discrepancy and offers retest option
-- Added session state tracking: `retestRequested`, `previousConeTestResult`, `useHybridFilter`
-- On first mismatch: system redirects to mismatch page and requests retest
-- On second mismatch (after retest): system uses hybrid filter approach
-- **Hybrid filter strategy (2-step process):**
-  1. Apply base OS preset filter for self-reported CVD type at full intensity
-  2. Apply confusion axis-specific hue adjustments based on CCT severity:
-     - Protan: Shift reds/oranges (hue 0-60°, 330-360°) toward yellows/greens (+30° × severity)
-     - Deutan: Shift greens (hue 90-150°) toward reds/yellows (-30° × severity)
-     - Tritan: Shift blues/cyans (hue 180-270°) toward cyan/purple (±20° × severity)
-- `applyHybridFilter()` combines OS preset base with CCT-measured confusion axis adjustments
-- **Backend persistence:** New endpoint POST /api/sessions/:id/hybrid-filter saves useHybridFilter flag to database
-- **Task performance tracking:** Added "hybrid" to filterType enum; tasks completed with hybrid filter are recorded with filterType: "hybrid"
-- **Frontend integration:** CVDResults page saves hybrid flag to backend when persistent mismatch detected
-- **Display:** Hybrid filter tasks appear as "Hybrid Filter" in statistics page
-- TaskGames detects `state.useHybridFilter` flag and applies hybrid filter when true
-- Maintains both custom AdvancedColorblindFilter and OS preset filters as separate systems
-
-**Filter Application Logic:**
-1. **Normal vision (no CVD detected):** advancedFilterParams set to null, no filters applied
-2. **CVD detected, no mismatch (self-reported = detected):** Use custom AdvancedColorblindFilter with auto-detected type from CCT thresholds
-3. **CVD detected, mismatch (self-reported ≠ detected, first test):** Show mismatch page, request retest
-4. **CVD detected, mismatch persists (after retest):** Use hybrid filter (OS preset for self-reported type + CCT severity from that axis)
-
-# Recent Changes (November 19, 2025)
-
-**Universal Button Styling:**
-- Updated all buttons to have consistent white background with black text
-- Added shadow underneath all buttons (shadow-md baseline)
-- Implemented pop-up effect on hover with shadow increase (shadow-lg) and upward translation (-translate-y-0.5)
-- Smooth transitions (150ms) for professional feel
-- All button variants (default, destructive, outline, secondary, ghost) now share the same visual style
-
-**Advanced Filter Recommendation System:**
-- Added `getRecommendedFilter()` function to determine optimal colorblind filter based on user-reported type and/or cone test scores
-- Implements intelligent blending when scores are close across multiple CVD axes (< 4 point difference on 0-40 scale)
-- Returns normalized severity (0-1) with weighted contributions from secondary axes when applicable
-- Handles all edge cases: missing user type, undefined scores, close multi-axis scores
-- Fully typed with TypeScript interfaces: `ConeTestScores` and `RecommendedFilter`
-
-**Confusion Matrix Filter Implementation:**
-- Replaced simple hue shift approach with scientifically accurate Brettel et al., 1997 confusion matrices
-- Separate matrices for protanopia, deuteranopia, and tritanopia with severity-based scaling
-- Fixed severity normalization from 0-40 scale to 0-1 for consistent matrix intensity
-- Added tolerance-based achromatic guard (ε=0.01) to prevent grayscale color shifts
-- RGB clamping after matrix transformation prevents invalid color values
-- Safe HSL conversion with division-by-zero guards for grayscale inputs
-- CVD Results page updated with confusion axis explanations and matrix intensity visualization
-
-**Task Accuracy System Overhaul:**
-- Extended TaskPerformance schema with optional `accuracy` field (0-1 ratio) for precise performance measurement
-- Updated all three task games (Tile Matching, Color Scroll, Card Matching) to pass structured `{correct, accuracy}` objects to onComplete
-- Statistics page now displays real accuracy percentages instead of just pass/fail status
-- Tile Matching: accuracy = correctRounds/totalRounds (3 rounds)
-- Color Scroll: accuracy = 1 or 0 (single attempt)
-- Card Matching: accuracy = correctMatches/totalAttempts
-
-**Normal Vision Filter Handling:**
-- Added conditional logic to skip all filter transformations (both custom adaptive and OS presets) when user's detected CVD type is "normal"
-- Ensures users with normal color vision see unaltered colors during task games
-
-**Professional UI Redesign (Myers-Briggs Style):**
-- Implemented professional teal (#0d9488) primary and purple (#8b5cf6) secondary color scheme
-- Redesigned buttons with larger sizes (14px/28px padding), hover elevations, and color-matched shadows
-- Enhanced card styling with subtle borders and layered shadows
-- Improved typography with better letter spacing, weights, and hierarchy
-- Added professional gradient background (light blue to white)
-- Better input focus states with ring animations matching primary color
-- Improved tile hover interactions with scale transforms and border highlights
-- **Start game buttons**: White background with teal text/border, uppercase styling, 16px/40px padding for prominence
-- **Cone test progress bar**: Blue (teal) progress indicator with grey remainder track
-- **Task game page enhancements**: Added teal-gradient game container, centered titles, better spacing, teal-accented stats badges
-
-**Enhanced Tile Matching Game Randomization:**
-- Each of the 3 rounds now generates completely fresh random colors using new HSL seed values instead of reusing a pre-generated color pool
-- Ensures visual variety and prevents pattern memorization across rounds
-
-**Statistics Page Enhancements:**
-- Added average accuracy summary metrics to Total sections for both Custom and OS Preset filter columns
-- Calculates average by aggregating accuracy across all three task games
-
-**CVD Results Page Enhancements:**
-- Added confusion axis-aware hue shift explanations based on CVD type:
-  - Protanopia: Reds shift toward green/brown, Purples shift toward blue
-  - Deuteranopia: Greens shift toward red/brown, Oranges/yellows affected
-  - Tritanopia: Blues shift toward green, Yellows shift toward pink/light gray
-- Implemented visual color spectrum gradient bar displaying the full 0°-360° hue wheel with labeled markers at key positions
-- Uses non-overlapping hue ranges for accurate color name mapping
-
-**Tile Matching OS Preset Compatibility Fix:**
-- Increased hue shift from 15° to 75° for creating the odd tile
-- Added 15% saturation boost and ±10 brightness adjustment
-- Ensures odd tiles remain visually distinguishable after OS preset filter transformations
+OPHTHALMOS is a research application designed to evaluate personalized adaptive user interfaces for individuals with color vision deficiency (CVD). It assesses users' cone sensitivities, allows for customization of RGB hue adjustments, and compares the performance of custom adaptive filters against standard OS-level preset filters on visual tasks. The application collects quantitative metrics (time, accuracy, interactions) to measure the effectiveness of these color adaptation strategies. The business vision is to provide a robust platform for researching and developing advanced, personalized color correction technologies, potentially leading to improved accessibility and visual experiences for millions globally.
 
 # User Preferences
 
@@ -172,7 +10,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Frontend Architecture
 
-The frontend is built with React 18 and TypeScript, using Vite for development. It features a multi-page client-side routing managed by Wouter, guiding users through a sequence of questionnaire, cone test, CVD results, task games, and statistics. UI components are sourced from shadcn/ui (Radix UI primitives) and styled with Tailwind CSS, adhering to a modern, minimal aesthetic with a neutral color palette and CSS variables for them. Global application state, including session data, task performance, and filter selections, is managed via React Context API. Data fetching utilizes TanStack Query with a custom API request wrapper. Custom color utility functions handle hex/RGB/HSL conversions, WCAG contrast calculations, adaptive cone-based transformations, and OS preset filter simulations.
+The frontend is built with React 18 and TypeScript, using Vite for development. It features a multi-page client-side routing managed by Wouter, guiding users through a sequence of questionnaire, cone test, CVD results, task games, and statistics. UI components are sourced from shadcn/ui (Radix UI primitives) and styled with Tailwind CSS, adhering to a modern, minimal aesthetic with a neutral color palette. Global application state, including session data, task performance, and filter selections, is managed via React Context API. Data fetching utilizes TanStack Query with a custom API request wrapper. Custom color utility functions handle hex/RGB/HSL conversions, WCAG contrast calculations, adaptive cone-based transformations, and OS preset filter simulations.
 
 ## Backend Architecture
 
@@ -180,7 +18,21 @@ The backend is a Node.js Express server written in TypeScript. It provides a RES
 
 ## Data Architecture
 
-Shared schema definitions between client and server include structures for Questionnaire, ConeTestResult, RGBAdjustment, TaskPerformance, and comprehensive SessionData. The application implements an advanced colorblind filter that generates personalized parameters based on L/M/S cone thresholds, determining deficient cone type, severity, and applying confusion line-aware hue shifts, saturation boosts, and luminance gains.
+Shared schema definitions between client and server include structures for Questionnaire, ConeTestResult, RGBAdjustment, TaskPerformance, and comprehensive SessionData. The application implements an advanced colorblind filter that generates personalized parameters based on L/M/S cone thresholds, determining deficient cone type, severity, and applying confusion line-aware hue shifts, saturation boosts, and luminance gains. A hybrid filter system detects mismatches between self-reported and CCT-detected CVD types, applying a combination of OS preset filters and confusion axis-specific hue adjustments.
+
+## UI/UX Decisions
+
+The UI features a clean white background throughout all pages with a sticky navigation header. Panels and cards utilize a consistent light grey theme with subtle borders and shadows. Buttons have a universal white background, black text, and hover effects. Typography is enhanced with improved letter spacing and hierarchy. Professional teal and purple accents are used for primary and secondary color schemes in specific components like progress bars and interactive elements.
+
+## Feature Specifications
+
+- **CVD Mismatch Detection & Hybrid Filter System:** Detects discrepancies between user-reported and CCT-detected CVD types. Upon persistent mismatch, a hybrid filter is activated, combining an OS preset with CCT-measured confusion axis adjustments.
+- **Advanced Filter Recommendation System:** Determines optimal colorblind filters based on user-reported type and cone test scores, implementing intelligent blending for close scores.
+- **Confusion Matrix Filter Implementation:** Replaces simple hue shifts with scientifically accurate Brettel et al., 1997 confusion matrices for protanopia, deuteranopia, and tritanopia, with severity-based scaling and achromatic guards.
+- **Task Accuracy System:** Extends `TaskPerformance` schema with an `accuracy` field, providing precise performance measurement for all task games.
+- **Normal Vision Handling:** Skips all filter transformations for users with detected normal color vision.
+- **Enhanced Randomization:** Tile Matching game generates fresh random colors for each round using new HSL seed values.
+- **Participant Profile:** The results page displays a comprehensive participant profile including name, age, self-reported CVD type, screen time, and detected CVD type.
 
 # External Dependencies
 
@@ -212,4 +64,4 @@ Shared schema definitions between client and server include structures for Quest
 - Custom colorimetric transformations
 - Heuristic-based cone adaptation algorithms
 - WCAG contrast ratio calculations
-- Staircase threshold calculator (reversal detection, threshold estimation)
+- Staircase threshold calculator

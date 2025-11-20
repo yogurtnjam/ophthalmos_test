@@ -48,9 +48,12 @@ export default function CVDMismatch() {
     }
   };
 
-  const handleRetakeTest = () => {
+  const handleRetakeTest = async () => {
     // Mark that we've requested a retest
     // Store the previous test result for comparison
+    const currentSessionId = state.sessionId;
+    const previousResult = state.coneTestResult;
+    
     setState(s => ({
       ...s,
       previousConeTestResult: s.coneTestResult,
@@ -59,6 +62,21 @@ export default function CVDMismatch() {
       coneTestResult: null,
       advancedFilterParams: null,
     }));
+
+    // Save mismatch flags to backend
+    if (currentSessionId && previousResult) {
+      try {
+        const { apiRequest } = await import('@/lib/queryClient');
+        await apiRequest('POST', `/api/sessions/${currentSessionId}/mismatch-flags`, {
+          retestRequested: true,
+          previousConeTestResult: previousResult,
+        });
+        console.log('[CVDMismatch] Mismatch flags saved to backend');
+      } catch (error) {
+        console.error('[CVDMismatch] Failed to save mismatch flags:', error);
+      }
+    }
+
     setLocation('/cone-test');
   };
 
