@@ -170,8 +170,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : 'grayscale';
 
     // Automatically generate advanced filter parameters from cone test results
-    // Pass self-reported type so filter uses it as base (CCT only measures severity)
-    const advancedFilterParams = createFilterFromConeTest(result, state.questionnaire?.cvdType);
+    // Do NOT pass self-reported type - let the filter auto-detect from CCT thresholds
+    // Self-reported type is only used in hybrid filter scenario (mismatch after retest)
+    // For normal vision, don't create filter params at all
+    const advancedFilterParams = result.detectedType === 'normal' 
+      ? null 
+      : createFilterFromConeTest(result);
 
     // Capture current sessionId before setState
     const currentSessionId = state.sessionId;

@@ -4,16 +4,6 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
-**CRITICAL FIX: Custom Filter Now Uses Self-Reported CVD Type:**
-- Fixed major bug where custom filter was overriding self-reported CVD type with detected type
-- Custom filter now ALWAYS uses self-reported CVD type as the base filter
-- CCT (Cone Contrast Test) scores only measure severity on the self-reported axis
-- Modified `createFilterFromConeTest()` to accept self-reported type parameter
-- Added `createAdvancedColorblindFilterWithType()` for explicit type-based filter creation
-- Updated AppContext.tsx to pass questionnaire.cvdType to filter creation
-- **Behavior:** User reports deuteranopia → filter uses 'green' cone type regardless of CCT detection
-- This ensures user's self-knowledge is respected while CCT provides objective severity measurement
-
 **Participant Profile on Results Page:**
 - Added "Participant Profile" section at the top of the Statistics/Results page
 - Displays 5 key fields in a responsive grid:
@@ -68,9 +58,10 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 - Maintains both custom AdvancedColorblindFilter and OS preset filters as separate systems
 
 **Filter Application Logic:**
-1. **CCT type = indicated type:** Use custom AdvancedColorblindFilter with cone thresholds
-2. **CCT type ≠ indicated type (first test):** Show mismatch page, request retest
-3. **CCT type ≠ indicated type (retest):** Use OS preset for indicated type + CCT severity from that axis
+1. **Normal vision (no CVD detected):** advancedFilterParams set to null, no filters applied
+2. **CVD detected, no mismatch (self-reported = detected):** Use custom AdvancedColorblindFilter with auto-detected type from CCT thresholds
+3. **CVD detected, mismatch (self-reported ≠ detected, first test):** Show mismatch page, request retest
+4. **CVD detected, mismatch persists (after retest):** Use hybrid filter (OS preset for self-reported type + CCT severity from that axis)
 
 # Recent Changes (November 19, 2025)
 
