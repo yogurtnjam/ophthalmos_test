@@ -17,12 +17,18 @@ function Router() {
   const { setFilterMode, state } = useApp();
   const [location, setLocation] = useLocation();
 
+  // Prevent filter mode switches if user hasn't completed custom tasks yet
+  const canSwitchToOSPreset = state.hasCompletedCustomTasks;
+
   const handleCustomPresetClick = () => {
     setFilterMode('custom');
     setLocation('/tasks');
   };
 
   const handleOSPresetClick = () => {
+    if (!canSwitchToOSPreset) {
+      return; // Don't allow switching to OS preset until custom tasks are done
+    }
     setFilterMode(state.selectedOSPreset);
     setLocation('/tasks');
   };
@@ -63,6 +69,7 @@ function Router() {
             variant={location === '/tasks' && state.currentFilterMode !== 'custom' ? 'default' : 'outline'}
             size="sm"
             onClick={handleOSPresetClick}
+            disabled={!canSwitchToOSPreset}
             data-testid="link-os-preset"
           >
             OS Preset Tasks

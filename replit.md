@@ -4,6 +4,13 @@ OPHTHALMOS is a research application designed to evaluate personalized adaptive 
 
 # Recent Changes (November 20, 2025)
 
+**OS Preset Task Flow Fix:**
+- Fixed issue where OS preset tasks were being skipped or incorrectly tracked
+- Added protection to prevent filter mode switches during active custom phase
+- OS Preset Tasks navigation button now disabled until custom tasks complete
+- Ensures proper sequential phase completion: Custom → OS Preset → Statistics
+- All task performances now saved with correct filterType (custom vs OS preset)
+
 **Scroll Position Fix for Task Games:**
 - Added automatic scroll-to-top when TaskGames page loads
 - Ensures users see Game 1 title and "Start Game" button immediately
