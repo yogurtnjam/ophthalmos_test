@@ -99,32 +99,8 @@ export default function CVDMismatch() {
           </div>
 
           <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">
-              Why This Might Happen
-            </h3>
-            <ul className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
-              <li className="flex gap-2">
-                <span className="text-amber-600 dark:text-amber-400">•</span>
-                <span>Environmental factors (lighting, screen calibration) may have affected test accuracy</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-amber-600 dark:text-amber-400">•</span>
-                <span>Some individuals have mixed CVD types with varying cone deficiencies</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-amber-600 dark:text-amber-400">•</span>
-                <span>Test fatigue or concentration lapses during the assessment</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">Next Steps</h3>
-            <p className="text-muted-foreground text-sm">
-              We recommend retaking the cone contrast test to verify the results. Please ensure you're in a well-lit environment with a properly calibrated screen.
-            </p>
-            <p className="text-muted-foreground text-sm">
-              If the second test still shows a mismatch, the system will use your indicated type as the base filter and apply adjustments based on your cone sensitivity measurements.
+            <p className="text-sm text-amber-900 dark:text-amber-100">
+              Please retake the test in good lighting. If results still differ, we'll use your indicated type with custom adjustments.
             </p>
           </div>
 
